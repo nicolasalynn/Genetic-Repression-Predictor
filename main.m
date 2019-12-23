@@ -129,5 +129,7 @@ clearvars calc_folding_e
 
 tAI = tAI_generator(codon_tAI);
 
+%% GC content (Michal)
+
 
 %% Cleaning Data
