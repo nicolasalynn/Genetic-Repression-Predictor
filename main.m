@@ -14,6 +14,7 @@ clear, clc
 addpath nico_functions
 addpath lotem_functions
 addpath michal_functions
+
 %%  Create Data
 % The data we have obtained contains data for ~5000 genes and ~200 miRNAs.
 % Not all gene miRNA combinations bind. We only wish to look at the
@@ -100,11 +101,11 @@ load("data_sets/feature_data/binding_indices.mat")
 load("data_sets/feature_data/nt_windows.mat")
 load("data_sets/feature_data/all_indices.mat")
 
+
+%% Feature: Number of Binding Sites Across all regions (Nico)
 combined_indices = all_indices(:, :, 1) + all_indices(:, :, 2) + all_indices(:, :, 3); % number of occurances accross all three sequences
-
-%%
-
-previewData(combined_indices, 10)
+[M, I] = max(combined_indices);
+previewData(combined_indices, 10);
 
 %% Feature: Thermodynamics
 

@@ -11,7 +11,10 @@ clear, clc
                         length(mirtna_training) = 74
 %}
 
-disp("My branch")
+addpath nico_functions
+addpath lotem_functions
+addpath michal_functions
+
 %%  Create Data
 % The data we have obtained contains data for ~5000 genes and ~200 miRNAs.
 % Not all gene miRNA combinations bind. We only wish to look at the
@@ -94,8 +97,15 @@ end
 clearvars run_initiation run_windows
 %% Load Data
 
-load("data_sets/feature_data/binding_indices.mat")\
-load("nt_windows.mat")
+load("data_sets/feature_data/binding_indices.mat")
+load("data_sets/feature_data/nt_windows.mat")
+load("data_sets/feature_data/all_indices.mat")
+
+combined_indices = all_indices(:, :, 1) + all_indices(:, :, 2) + all_indices(:, :, 3); % number of occurances accross all three sequences
+
+%%
+
+previewData(combined_indices, 10)
 
 %% Feature: Thermodynamics
 
@@ -119,6 +129,8 @@ clearvars calc_folding_e
 %% tAI (Michal)
 
 tAI = tAI_generator(codon_tAI);
+
+%% GC content (Michal)
 
 
 %% Cleaning Data
