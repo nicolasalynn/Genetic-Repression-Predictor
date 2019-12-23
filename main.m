@@ -124,5 +124,9 @@ clearvars calc_folding_e
 %% MER Site Distance to closest terminus
 
 
+%% tAI (Michal)
+
+tAI = tAI_generator(codon_tAI);
+
 
 %% Cleaning Data
