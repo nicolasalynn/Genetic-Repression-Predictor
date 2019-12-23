@@ -100,12 +100,18 @@ clearvars run_initiation run_windows
 load("data_sets/feature_data/binding_indices.mat")
 load("data_sets/feature_data/nt_windows.mat")
 load("data_sets/feature_data/all_indices.mat")
+load("data_sets/challenge_data/repress.mat")
+repress = table2array(repress(:, 2:end))';
 
 
 %% Feature: Number of Binding Sites Across all regions (Nico)
 combined_indices = all_indices(:, :, 1) + all_indices(:, :, 2) + all_indices(:, :, 3); % number of occurances accross all three sequences
 [M, I] = max(combined_indices);
 previewData(combined_indices, 10);
+
+combined_indices(combined_indices == 0) = NaN;
+data = create_usable_data(combined_indices, repress);
+m = regress(data(1, :)', data(2, :)');
 
 %% Feature: Thermodynamics
 
