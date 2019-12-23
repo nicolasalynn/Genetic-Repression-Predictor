@@ -6,7 +6,7 @@ function folding_energies = find_folding_energies(nt_windows)
     disp(size(nt_windows));
     disp(size(folding_energies));
     for i = 1:gene_length
-        i
+          
         for j = 1:mirna_length
             
             if (nt_windows(i, j) == '')
