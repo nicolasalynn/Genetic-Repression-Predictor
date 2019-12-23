@@ -69,7 +69,7 @@ clearvars temp
 run_initiation = input("Do you want to recalculate the miRNA-mRNA binding "  +  ...
 "indices? This action will take approximatelly 2 minutes... \n([Y] = 1, [N] = 0):  ");
 
-if run_initiation
+if run_initiation 
     %tic;
     fprintf("\nThis will take a minute...\n\n");
     binding_indices(mirs_training, gene_training)
