@@ -11,7 +11,7 @@ clear, clc
                         length(mirtna_training) = 74
 %}
 
-
+disp("My branch")
 %%  Create Data
 % The data we have obtained contains data for ~5000 genes and ~200 miRNAs.
 % Not all gene miRNA combinations bind. We only wish to look at the
