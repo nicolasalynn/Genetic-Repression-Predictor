@@ -11,7 +11,9 @@ clear, clc
                         length(mirtna_training) = 74
 %}
 
-disp("My branch")
+addpath nico_functions
+addpath lotem_functions
+addpath michal_functions
 %%  Create Data
 % The data we have obtained contains data for ~5000 genes and ~200 miRNAs.
 % Not all gene miRNA combinations bind. We only wish to look at the
@@ -94,8 +96,15 @@ end
 clearvars run_initiation run_windows
 %% Load Data
 
-load("binding_indices.mat")
-load("nt_windows.mat")
+load("data_sets/feature_data/binding_indices.mat")
+load("data_sets/feature_data/nt_windows.mat")
+load("data_sets/feature_data/all_indices.mat")
+
+combined_indices = all_indices(:, :, 1) + all_indices(:, :, 2) + all_indices(:, :, 3); % number of occurances accross all three sequences
+
+%%
+
+previewData(combined_indices, 10)
 
 %% Feature: Thermodynamics
 
@@ -113,15 +122,7 @@ clearvars calc_folding_e
 %mirna_binding_repression = binding_average_repress(repress, nt_windows, 'b');
 
 
-%% Folding energy of a window around the binding side of the miRNA
-
-%disp(all_indices(:,:,3));
-
-%% Folding Energy (calculate folding energy of the beginning of each ORF and 5'NCR
-
-
-
-%% MER Site Distance to closest terminus
+%% MER Site Distance to closest terminus 
 
 
 %% tAI (Michal)

@@ -11,7 +11,7 @@ clear, clc
                         length(mirtna_training) = 74
 %}
 
-
+disp("My branch")
 %%  Create Data
 % The data we have obtained contains data for ~5000 genes and ~200 miRNAs.
 % Not all gene miRNA combinations bind. We only wish to look at the
@@ -67,17 +67,19 @@ clearvars temp
 % after the first index.
 
 run_initiation = input("Do you want to recalculate the miRNA-mRNA binding "  +  ...
-"indices? \n([Y] = 1, [N] = 0):  ");
+"indices? This action will take approximatelly 2 minutes... \n([Y] = 1, [N] = 0):  ");
 
-if run_initiation
-    tic;
+if run_initiation 
+    %tic;
     fprintf("\nThis will take a minute...\n\n");
     binding_indices(mirs_training, gene_training)
-    initiation_time = toc;
+    load('data_sets/feature_data/binding_indices.mat')
+    previewData(first_indices, 10);
+    %initiation_time = toc;
 end
 
 % site_indices will be a 74 x 3947 x 3  matrix with the index values for
-% the orrucance of miRNA in gene (!
+% the orrucance of miRNA in gene (1D: UTR5, 2D: ORF, 3D: UTR3
 
 run_windows = input("Do you want to recalculate the binding windows? " + ...
     "\n([Y] = 1, [N] = 0):  ");
@@ -92,7 +94,7 @@ end
 clearvars run_initiation run_windows
 %% Load Data
 
-load("binding_indices.mat")
+load("data_sets/feature_data/binding_indices.mat")\
 load("nt_windows.mat")
 
 %% Feature: Thermodynamics
@@ -111,16 +113,12 @@ clearvars calc_folding_e
 %mirna_binding_repression = binding_average_repress(repress, nt_windows, 'b');
 
 
-%% Folding energy of a window around the binding side of the miRNA
-
-%disp(all_indices(:,:,3));
-
-%% Folding Energy (calculate folding energy of the beginning of each ORF and 5'NCR
+%% MER Site Distance to closest terminus 
 
 
+%% tAI (Michal)
 
-%% MER Site Distance to closest terminus
-
+tAI = tAI_generator(codon_tAI);
 
 
 %% Cleaning Data
