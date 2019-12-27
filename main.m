@@ -42,7 +42,7 @@ temp = load('data_sets/challenge_data/repress.mat');
 repress = temp.repress;
 clearvars temp
 
-%% Step 1: Find the first instance of miRNA mRNA binding for each combination (Nico)
+%% Find the first instance of miRNA mRNA binding for each combination (Nico)
 
 run_initiation = input("Do you want to recalculate the miRNA-mRNA binding "  +  ...
 "indices? This action will take approximatelly 2 minutes... \n([Y] = 1, [N] = 0):  ");
@@ -112,9 +112,6 @@ data_plotter(X, y, y_predict, m);
 
 %% Exploring data (what is the averate repression level where there are miRNA binding sites and were there arent)
 
-%non_mirna_binding_repression = binding_average_repress(repress, nt_windows, 'nb');
-%mirna_binding_repression = binding_average_repress(repress, nt_windows, 'b');
-
 
 %% MER Site Distance to closest terminus 
 
@@ -126,6 +123,7 @@ for i = 1:1
     %x - ?
     dist = bs_dist_edge(seq, bs_index, x);
 end
+
 %% CAI (Michal)
 
 CAI = CAI_generator(nt_windows,codon_CAI);
