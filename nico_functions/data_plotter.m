@@ -5,9 +5,9 @@ together = [X; y_actual; y_predicted]';
 together = sortrows(together);
 
 
-real_mean = mean(y_actual)
-pred_mean = mean(y_predicted)
-range_vals = range(X)
+real_mean = mean(y_actual);
+pred_mean = mean(y_predicted);
+range_vals = range(X);
 range_pred = range(y_predicted);
 stand_score = zscore(X);
 correlation = corr(together(:, 1), together(:, 2))
