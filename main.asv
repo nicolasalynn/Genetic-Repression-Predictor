@@ -73,21 +73,14 @@ load("data_sets/feature_data/nt_windows.mat")
 load("data_sets/feature_data/all_indices.mat")
 load("data_sets/challenge_data/repress.mat")
 repress = table2array(repress(:, 2:end))';
-
 %% Feature: Number of Binding Sites Across all regions (Nico)
 combined_indices = all_indices(:, :, 1) + all_indices(:, :, 2) + all_indices(:, :, 3); % number of occurances accross all three sequences
-M = max(max(combined_indices));
-unique_vals = unique(combined_indices);
+[M, I] = max(combined_indices);
 previewData(combined_indices, 10);
 
-%combined_indices(combined_indices == 0) = NaN;
-[X, y] = create_usable_data(combined_indices, repress);
-unique_vals = unique(X);
-M = max(X);
-
-m = regress(X', y');
-y_predict = X .* m;
-data_plotter(X, y, y_predict, m);
+combined_indices(combined_indices == 0) = NaN;
+data = create_usable_data(combined_indices, repress);
+m = regress(data(1, :)', data(2, :)');
 
 %% Feature: Thermodynamics
 
@@ -97,17 +90,9 @@ if calc_folding_e == 1
     tic
     folding_energies = find_folding_energies(nt_windows);
     fold_energy_time = toc;
-else
-    load('data_sets/feature_data/folding_energies.mat')
 end
 
 clearvars calc_folding_e
-folding_energies(folding_energies == 0) = NaN;
-[X, y] = create_usable_data(folding_energies, repress);
-
-m = regress(y', X');
-y_predict =  X .* m;
-data_plotter(X, y, y_predict, m);
 
 %% Exploring data (what is the averate repression level where there are miRNA binding sites and were there arent)
 
