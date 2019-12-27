@@ -4,6 +4,7 @@ clear, clc
 %   interaction.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 %{
     Technical notes:
                         size(gene_training, 1) = 2947
@@ -116,9 +117,10 @@ data_plotter(X, y, y_predict, m);
 
 
 %% MER Site Distance to closest terminus 
+
 L = size(binding_indices,1);
 %binding_indices is an unknown table, couldn't be open by me
-for 1:1:L
+for i = 1:1
     bs_index = binding_indices(i);
     %seq = 
     %x - ?
