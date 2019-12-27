@@ -41,7 +41,7 @@ temp = load('data_sets/challenge_data/repress.mat');
 repress = temp.repress;
 clearvars temp
 
-%% Step 1: Find the first instance of miRNA mRNA binding for each combination & ...
+%% Step 1: Find the first instance of miRNA mRNA binding for each combination (Nico)
 
 run_initiation = input("Do you want to recalculate the miRNA-mRNA binding "  +  ...
 "indices? This action will take approximatelly 2 minutes... \n([Y] = 1, [N] = 0):  ");
@@ -60,7 +60,7 @@ run_windows = input("Do you want to recalculate the binding windows? " + ...
 if run_windows
     tic;
     load('data_sets/feature_data/true_indices.mat');
-    fprintf("\nTHis will take a minute....\n\n");
+    fprintf("\nTHis might take a minute....\n\n");
     get_gene_windows(gene_training, true_indices);
     genwindows_time = toc;
 end

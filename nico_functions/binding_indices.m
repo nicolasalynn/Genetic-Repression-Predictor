@@ -21,17 +21,28 @@ function binding_indices(mirs_training, gene_training, repress)
     repress_truth(isnan(repress_truth)) = 0;
  
 
+% first_indices will keep track of the index of the first binding site in
+% EACH of the 3 sequence regions. 
 
-    first_indices = zeros(length(mirs_training), size(gene_training, 1), 3); %first_inidices: 74 rows, 3947 columns
-    all_indices = zeros(length(mirs_training), size(gene_training, 1), 3);    
-    orfs = table2array(gene_training(:, 3));
+% all_indices will count how many occurances of binding incides occur in
+% each of the 3 sequence regions.
+
+% both are 74 rows, 3947 columns, 3 dimensions, where each of the dimasions
+% corresponds to UTR5', ORF, UTR3'
+
+    first_indices = zeros(length(mirs_training), size(gene_training, 1), 3); 74 rows, 3947 columns
+    all_indices = zeros(length(mirs_training), size(gene_training, 1), 3); 
+        
     utr5 = table2array(gene_training(:,2));
+    orfs = table2array(gene_training(:, 3));
     utr3 = table2array(gene_training(:,4));
-
+   
+  
     for i = 1:length(mirs_training)                 % i = 1:74
+        
         mirna_seq = char(mirs_training(2, i));      % mirna_seq is the sequence of the miRNA
         seed = mirna_seq(2:8);                      % this should be the seed (2:8) of the miRNA
-        mer_site_7 = seqrcomplement(seed);            % finding the reverse complement of the seed
+        mer_site_7 = seqrcomplement(seed);              % finding the reverse complement of the seed
         mer_site_8 = strcat(mer_site_7,'A');            % adding the a is so that it follows mer78 
         
         for j = 1:size(gene_training, 1)            % j = 1:3947
@@ -44,10 +55,13 @@ function binding_indices(mirs_training, gene_training, repress)
             temp_orf = regexp(str_of_orf, mer_site_8);            %finding indices in each segment
             temp_utr3 = regexp(str_of_utr3, mer_site_8);
             
+                
+
             all_indices(i, j, 1) = length(temp_utr5);
             all_indices(i, j, 2) = length(temp_orf);
             all_indices(i, j, 3) = length(temp_utr3);
 
+            
             if isempty(temp_utr5)
                 first_indices(i, j, 1) = 0;
             else
