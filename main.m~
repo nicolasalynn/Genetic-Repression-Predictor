@@ -97,17 +97,16 @@ if calc_folding_e == 1
     tic
     folding_energies = find_folding_energies(nt_windows);
     fold_energy_time = toc;
-else
-    load('data_sets/feature_data/folding_energies.mat')
 end
 
 clearvars calc_folding_e
-folding_energies(folding_energies == 0) = NaN;
-[X, y] = create_usable_data(folding_energies, repress);
 
-m = regress(y', X');
-y_predict =  X .* m;
-data_plotter(X, y, y_predict, m);
+[X, y] = create_usable_data(folding_energies, regress);
+m = regress(X', y');
+y_predict = X.*m;
+data_plot
+
+
 
 %% Exploring data (what is the averate repression level where there are miRNA binding sites and were there arent)
 
