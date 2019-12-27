@@ -4,6 +4,7 @@ clear, clc
 %   interaction.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 %{
     Technical notes:
                         size(gene_training, 1) = 2947
@@ -41,7 +42,7 @@ temp = load('data_sets/challenge_data/repress.mat');
 repress = temp.repress;
 clearvars temp
 
-%% Step 1: Find the first instance of miRNA mRNA binding for each combination (Nico)
+%% Find the first instance of miRNA mRNA binding for each combination (Nico)
 
 run_initiation = input("Do you want to recalculate the miRNA-mRNA binding "  +  ...
 "indices? This action will take approximatelly 2 minutes... \n([Y] = 1, [N] = 0):  ");
@@ -73,14 +74,21 @@ load("data_sets/feature_data/nt_windows.mat")
 load("data_sets/feature_data/all_indices.mat")
 load("data_sets/challenge_data/repress.mat")
 repress = table2array(repress(:, 2:end))';
+
 %% Feature: Number of Binding Sites Across all regions (Nico)
 combined_indices = all_indices(:, :, 1) + all_indices(:, :, 2) + all_indices(:, :, 3); % number of occurances accross all three sequences
-[M, I] = max(combined_indices);
+M = max(max(combined_indices));
+unique_vals = unique(combined_indices);
 previewData(combined_indices, 10);
 
-combined_indices(combined_indices == 0) = NaN;
-data = create_usable_data(combined_indices, repress);
-m = regress(data(1, :)', data(2, :)');
+%combined_indices(combined_indices == 0) = NaN;
+[X, y] = create_usable_data(combined_indices, repress);
+unique_vals = unique(X);
+M = max(X);
+
+m = regress(X', y');
+y_predict = X .* m;
+data_plotter(X, y, y_predict, m);
 
 %% Feature: Thermodynamics
 
@@ -90,25 +98,32 @@ if calc_folding_e == 1
     tic
     folding_energies = find_folding_energies(nt_windows);
     fold_energy_time = toc;
+else
+    load('data_sets/feature_data/folding_energies.mat')
 end
 
 clearvars calc_folding_e
+folding_energies(folding_energies == 0) = NaN;
+[X, y] = create_usable_data(folding_energies, repress);
+
+m = regress(y', X');
+y_predict =  X .* m;
+data_plotter(X, y, y_predict, m);
 
 %% Exploring data (what is the averate repression level where there are miRNA binding sites and were there arent)
 
-%non_mirna_binding_repression = binding_average_repress(repress, nt_windows, 'nb');
-%mirna_binding_repression = binding_average_repress(repress, nt_windows, 'b');
-
 
 %% MER Site Distance to closest terminus 
+
 L = size(binding_indices,1);
 %binding_indices is an unknown table, couldn't be open by me
-for 1:1:L
+for i = 1:1
     bs_index = binding_indices(i);
     %seq = 
     %x - ?
     dist = bs_dist_edge(seq, bs_index, x);
 end
+
 %% CAI (Michal)
 
 CAI = CAI_generator(nt_windows,codon_CAI);
