@@ -1,20 +1,22 @@
-function [conservation] = conservation(seq,bs_indices)
+function [conservation] = Conservation(seq,bs_index)
+% seq is 1 mrna
+% bs_index is the 1st coordinate of the binding site
 
 load('genes_training.mat');
-cons = genes_training.conservation;
-L = length(bs_indices);
+%cons = genes_training.conservation;
+%L = length(bs_indices);
 avg = 0;
 conservation = [];
 
-for j=1:1:L
-    a = bs_indices(j); %1st binding site index
+
+    %a = bs_indices(j); %1st binding site index
+    a = bs_index;
     for i=0:1:6
         avg = avg + seq.conservation(i+a); %???? ????? ??????? ?? ????? 
     end
-    conservation = [conservation, avg/7];
-    avg = 0;
-end
+    %conservation = [conservation, avg/7];
 
-conservation = conservation;
+
+conservation = (avg/7);
 end
 
