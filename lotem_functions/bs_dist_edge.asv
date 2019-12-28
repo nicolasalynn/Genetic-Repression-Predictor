@@ -1,10 +1,12 @@
 function bs_dist_edge[dist] = untitled(seq,bs_index, x)
-%seq is the mrna from genes_training
+%seq is mrna from genes_training
 %bs_index keeps the location of the miRNA bs - only for those that have 1 bs
-% x equals 2:5'UTR  3:ORF  4:3'UTR   depending on bs location
+% x equeals 2:5'UTR  3:ORF  4:3'UTR   depending on bs location
 
 load('genes_training.mat');
+L = length(seq);
 
+for i=1:1:L
     if(x==2)
       num1 = length(seq.utr5);
       num2 = bs_index
@@ -18,6 +20,9 @@ load('genes_training.mat');
       num2 = bs_index
       dist = min(num1-num2, num2);
     end
+    
+end
+
 
 dist = dist;
 end
