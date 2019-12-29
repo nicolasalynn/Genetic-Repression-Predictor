@@ -1,20 +1,22 @@
 function folding_energies = find_folding_energies(nt_windows)
     
     gene_length = size(nt_windows, 1);
-    mirna_length = size(nt_windows, 2)
+    mirna_length = size(nt_windows, 2);
     folding_energies = zeros(gene_length, mirna_length);
-    disp(size(nt_windows));
-    disp(size(folding_energies));
     
+    nt_windows(isempty(nt_windows)) = '';
+    nt_windows(ismissing(nt_windows)) = '';
+
+   nt_windows(1, 112)
     
     for i = 1:gene_length
         i
         for j = 1:mirna_length
-            
+            j
             if (nt_windows(i, j) == '')
                 continue
             else
-                sequence = char(nt_windows(i, j));
+                sequence = char(nt_windows(i, j))
                 [discard, folding_energies(i, j), discard2] = rnafold(sequence);
             end
             clearvars discard discard2
@@ -22,7 +24,7 @@ function folding_energies = find_folding_energies(nt_windows)
         end
     end
 
-    save('data_sets/feature_data/folding_energies.mat', 'folding_energies')
+    save('data_sets/feature_data/folding_energies_orf.mat', 'folding_energies')
 
 
 end

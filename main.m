@@ -64,6 +64,7 @@ if run_windows
     fprintf("\nTHis might take a minute....\n\n");
     get_gene_windows(gene_training, true_indices);
     genwindows_time = toc;
+    load('data_sets/feature_data/true_nt_windows.mat')
 end
 
 clearvars run_initiation run_windows
@@ -73,6 +74,7 @@ load("data_sets/feature_data/binding_indices.mat")
 load("data_sets/feature_data/nt_windows.mat")
 load("data_sets/feature_data/all_indices.mat")
 load("data_sets/challenge_data/repress.mat")
+load('data_sets/feature_data/true_nt_windows.mat')
 repress = table2array(repress(:, 2:end))';
 
 %% Feature: Number of Binding Sites Across all regions (Nico)
@@ -96,7 +98,7 @@ calc_folding_e = input("\nWould you like to calculate folding " + ...
     "energies?\nThis will take a few minutes..\n [Y]:1, [N]:0\n>>");
 if calc_folding_e == 1
     tic
-    folding_energies = find_folding_energies(nt_windows);
+    folding_energies = find_folding_energies(true_nt_windows(:, :, 2));
     fold_energy_time = toc;
 else
     load('data_sets/feature_data/folding_energies.mat')

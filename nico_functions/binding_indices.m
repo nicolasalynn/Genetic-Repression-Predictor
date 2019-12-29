@@ -30,7 +30,7 @@ function binding_indices(mirs_training, gene_training, repress)
 % both are 74 rows, 3947 columns, 3 dimensions, where each of the dimasions
 % corresponds to UTR5', ORF, UTR3'
 
-    first_indices = zeros(length(mirs_training), size(gene_training, 1), 3); 74 rows, 3947 columns
+    first_indices = zeros(length(mirs_training), size(gene_training, 1), 3); %74 rows, 3947 columns
     all_indices = zeros(length(mirs_training), size(gene_training, 1), 3); 
         
     utr5 = table2array(gene_training(:,2));

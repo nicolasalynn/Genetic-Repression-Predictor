@@ -72,54 +72,7 @@ function get_gene_windows(gene_list, indices)
                 end
                     
                     
-                    
-                    
-                    
-    %             if (index_val_utr5 ~= 0)
-    %                 if strlength(utr5) < 63
-    %                     nt_windows(mirna, gene) = utr5;
-    %                 elseif (index_val_utr5 <= 26)
-    %                     nt_windows(mirna, gene) = utr5(1:63);
-    %                 elseif (index_val_utr5 > strlength(utr5) - 35)
-    %                     nt_windows(mirna, gene) = utr5(length(utr5)-63:length(utr5));
-    %                 else
-    %                     nt_windows(mirna, gene) = utr5(index_val_utr5 - 26:index_val_utr5 + 35);
-    %                 end
-    %                 
-    %             elseif (index_val_utr5 == 0)
-    %                 
-    %                 if (index_val_orf ~= 0)
-    %                     
-    %                     if (index_val_orf <= 26)
-    %                         nt_windows(mirna, gene) = orf(1:63);
-    %                     elseif (index_val_orf > strlength(orf) - 35)
-    %                         nt_windows(mirna, gene) = orf(length(orf)-63:length(orf));
-    %                     else
-    %                         nt_windows(mirna, gene) = orf(index_val_orf - 26:index_val_orf + 35);
-    %                     end
-    %                     
-    %                 elseif (index_val_orf == 0)
-    %                     
-    %                     if (index_val_utr3 ~= 0)
-    %                         if strlength(utr3) < 63
-    %                             nt_windows(mirna, gene) = utr3;
-    %                         elseif (index_val_utr3 <= 26)
-    %                             nt_windows(mirna, gene) = utr3(1:63);
-    %                         elseif (index_val_utr3 > strlength(utr3) - 35)
-    %                             nt_windows(mirna, gene) = utr3(length(utr3)-63:length(utr3));
-    %                         else
-    %                             nt_windows(mirna, gene) = utr3(index_val_utr3 - 26:index_val_utr3 + 35);
-    %                     
-    %                         end
-    %                         
-    %                         
-    %                     elseif (index_val_utr3 == 0)
-    %                         continue
-    %                         
-    %                     end
-    %                 end
-    %             end
-    %             
+                          
             end
         end
     
