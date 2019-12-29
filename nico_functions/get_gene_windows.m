@@ -1,18 +1,26 @@
 %% Returns the 63 nucleotide window around the first index of the seed area
 
-function get_gene_windows(gene_list, indices)
+function get_gene_windows(gene_list, indices, file_save_name, window_width)
     
-    window = 74;
+    f = waitbar(0, "Calculating Window Energies...");
+
+    indices(isnan(indices)) = 0;
+    
+    file_name_1 = strcat('data_sets/feature_data/', char(file_save_name), '.mat');
+    file_name_2 = strcat('data_sets/feature_data/reshaped_', char(file_save_name), '.mat');
+
+    
+    window = window_width;
     orfs = table2array(gene_list(:, 3));
     utr5s = table2array(gene_list(:, 2));    %
     utr3s = table2array(gene_list(:, 4));    %
     
  
     [num_mirnas, num_genes, dim] = size(indices);
-    nt_windows = strings(num_mirnas, num_genes);
     true_nt_windows = strings(num_mirnas, num_genes, dim);
 
         for gene = 1:num_genes
+            waitbar(gene/num_genes, f, "Looping through indices...")
 
 
             orf = cell2mat(orfs(gene));
@@ -43,7 +51,7 @@ function get_gene_windows(gene_list, indices)
                 
                 
                 if (index_val_orf ~= 0)
-                    if strlength(utr5) < window
+                    if strlength(orf) < window
                         true_nt_windows(mirna, gene, 2) = orf;
                     elseif (index_val_orf <= window/2)
                         true_nt_windows(mirna, gene, 2) = orf(1:window);
@@ -77,8 +85,12 @@ function get_gene_windows(gene_list, indices)
         end
     
     
-    
+    windows_reshaped = reshape_nico(true_nt_windows, "str");
     
     clear binding_indices
-    save('data_sets/feature_data/true_nt_windows.mat', 'true_nt_windows')
+    save(file_name_1, 'true_nt_windows')
+    save(file_name_2, 'windows_reshaped')
+    
+    close(f)
+
 end

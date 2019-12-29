@@ -10,7 +10,7 @@ pred_mean = mean(y_predicted);
 range_vals = range(X);
 range_pred = range(y_predicted);
 stand_score = zscore(X);
-correlation = corr(together(:, 1), together(:, 2))
+correlation = corr(together(:, 1), together(:, 2), 'type', 'pearson');
 
 fprintf("######################################################\n")
 fprintf("Mean of Actual Data: \t\t%d\nMean of Predicted Data: " + ...

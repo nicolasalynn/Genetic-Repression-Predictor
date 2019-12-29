@@ -50,6 +50,7 @@ run_initiation = input("Do you want to recalculate the miRNA-mRNA binding "  +  
 if run_initiation 
     fprintf("\nThis will take a minute...\n\n");
     binding_indices(mirs_training, gene_training, repress)
+    load('data_sets/feature_data/_indices.mat')
 end
 clearvars run_initiation
 %% Obtain windows of specified length for all indices found previously
@@ -59,7 +60,8 @@ run_windows = input("Do you want to recalculate the binding windows? " + ...
 if run_windows
     load('data_sets/feature_data/true_indices.mat');
     fprintf("\nThis might take a minute....\n\n");
-    get_gene_windows(gene_training, true_indices, 'nt_windows', 74); %by default, set to 74
+    get_gene_windows(gene_training, true_indices, 'nt30_windows', 30); %by default, set to 74
+    load('data_sets/feature_data/true_nt_windows.mat')
 end
 clearvars run_windows
 %% Load Data

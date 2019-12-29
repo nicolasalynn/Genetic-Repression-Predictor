@@ -15,10 +15,11 @@
 
 function binding_indices(mirs_training, gene_training, repress)
 
+    f = waitbar(0, "Calculating Window Energies...");
 
     repress_truth = table2array(repress(:, 2:end))';
-    repress_truth(~isnan(repress_truth)) = 1;
-    repress_truth(isnan(repress_truth)) = 0;
+    repress_truth(~isnan(repress_truth) & ~isempty(repress_truth)) = 1;
+    repress_truth(isnan(repress_truth) | isempty(repress_truth)) = 0;
  
 
 % first_indices will keep track of the index of the first binding site in
@@ -40,11 +41,13 @@ function binding_indices(mirs_training, gene_training, repress)
   
     for i = 1:length(mirs_training)                 % i = 1:74
         
+        waitbar(i/length(mirs_training), f, "Looping through miRNAs...")
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         mirna_seq = char(mirs_training(2, i));      % mirna_seq is the sequence of the miRNA
         seed = mirna_seq(2:8);                      % this should be the seed (2:8) of the miRNA
         mer_site_7 = seqrcomplement(seed);              % finding the reverse complement of the seed
         mer_site_8 = strcat(mer_site_7,'A');            % adding the a is so that it follows mer78 
-        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         for j = 1:size(gene_training, 1)            % j = 1:3947
             
             str_of_utr5 = dna2rna(string(utr5{j}));
@@ -61,25 +64,40 @@ function binding_indices(mirs_training, gene_training, repress)
             all_indices(i, j, 2) = length(temp_orf);
             all_indices(i, j, 3) = length(temp_utr3);
 
+            % first_index has a value 0 if there is no binding index, num
+            % if there is a singe index and NaN if there are multiple
+            % indices
             
             if isempty(temp_utr5)
                 first_indices(i, j, 1) = 0;
-            else
+            elseif length(temp_utr5) > 1
+                first_indices(i, j, 1) = NaN;
+            elseif length(temp_utr5) == 1
                 first_indices(i, j, 1) = temp_utr5(1);
+            else 
+                disp("Error!!!")
             end
 
             
             if isempty(temp_orf)
                 first_indices(i, j, 2) = 0;
+            elseif length(temp_orf) > 1
+                first_indices(i, j, 2) = NaN;
+            elseif length(temp_orf) == 1
+                first_indices(i, j, 2) = temp_orf(1); 
             else
-                first_indices(i, j, 2) = temp_orf(1);             
+                disp("Error!")
             end
             
             
             if isempty(temp_utr3)
                 first_indices(i, j, 3) = 0;
-            else
+            elseif length(temp_utr3) > 1
+                first_indices(i, j, 3) = NaN;
+            elseif length(temp_utr3) == 1
                 first_indices(i, j, 3) = temp_utr3(1);
+            else
+                disp("Error!!!")
             end
             
         end
@@ -87,10 +105,8 @@ function binding_indices(mirs_training, gene_training, repress)
     end
     
     index_truths = all_indices;
-    index_truths(index_truths > 1) = 0;
-    size(repress_truth)
-    size(index_truths)
-    
+    index_truths(index_truths ~= 1) = 0;
+
     usability(:, :, 1) = index_truths(:, :, 1) + repress_truth;
     usability(:, :, 2) = index_truths(:, :, 2) + repress_truth;
     usability(:, :, 3) = index_truths(:, :, 3) + repress_truth;
@@ -98,12 +114,31 @@ function binding_indices(mirs_training, gene_training, repress)
     usability(usability ~= 2) = 0;
     usability(usability == 2) = 1;
 
+    % usability is an array that tells you which elements in miRNA x gene
+    % tables you can actually use
     
-    true_indices = usability.*first_indices;
+    true_indices = first_indices;
+    true_indices(usability ~= 1) = NaN;
+    usable_repress(:,:,1) = table2array(repress(:, 2:end))';
+    usable_repress(:,:,2) = table2array(repress(:, 2:end))';
+    usable_repress(:,:,3) = table2array(repress(:, 2:end))';
+    usable_repress(usability ~= 1) = NaN;
     
-    save('data_sets/feature_data/true_indices.mat', 'true_indices')
-    save('data_sets/feature_data/binary_truth.mat', 'usability')
-    save('data_sets/feature_data/binding_indices.mat', 'first_indices')
-    save('data_sets/feature_data/all_indices.mat', 'all_indices')
+    
+    save('data_sets/feature_data/true_indices.mat', 'true_indices') %usable 
+    save('data_sets/feature_data/binary_truth.mat', 'usability')    %binary table 
+    save('data_sets/feature_data/all_indices.mat', 'all_indices')   %num of binding sites
+    save('data_sets/feature_data/good_repress.mat', 'usable_repress')   %usable repress values
+    
+    
+    reshaped_repress = reshape_nico(usable_repress);
+    reshaped_indices = reshape_nico(true_indices);
+    
+    save('data_sets/feature_data/reshaped_repress.mat', 'reshaped_repress');
+    save('data_sets/feature_data/reshaped_indices.mat', 'reshaped_indices');
+    
+    
+    close(f)
+
 end
 
