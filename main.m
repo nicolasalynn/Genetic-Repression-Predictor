@@ -85,8 +85,8 @@ calc_folding_e = input("\nWould you like to calculate folding " + ...
     "energies?\nThis will take a few minutes..\n [Y]:1, [N]:0\n>>");
 if calc_folding_e == 1
     %tic
-    dim = 3 % change this value depending of sequence region target
-    folding_energies = find_folding_energies(true_nt_windows(:, :, dim), dim);
+    dim = 0; % change this value depending of sequence region target
+    folding_energies = find_folding_energies(windows_reshaped, dim);
     %fold_energy_time = toc;
 else
     utr5 = load('data_sets/feature_data/folding_energies_utr5.mat');
@@ -94,8 +94,8 @@ else
     utr3 = load('data_sets/feature_data/folding_energies_utr3.mat');
 end
 clearvars calc_folding_e
-
-[X, y_obs, y_pred, m, correl] = data_pipeline(orf.folding_energies, repress);
+%%
+[X, y_obs, y_pred, m, correl] = data_pipeline(folding_energies{1, 3}, reshaped_repress{1, 3});
 %% Feature: Average Repression in presence and absence of binding site
 binding_or_no = all_indices;
 temp_repress = repress;
