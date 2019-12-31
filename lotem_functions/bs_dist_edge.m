@@ -1,7 +1,4 @@
-function bs_dist_edge[dist] = untitled()
-%seq is the mrna from genes_training
-%bs_index keeps the location of the miRNA bs - only for those that have 1 bs
-% x equals 2:5'UTR  3:ORF  4:3'UTR   depending on bs location
+function [dist] = bs_dist_edge()
 
 load('data_sets\feature_data\reshaped_indices.mat');
 load('data_sets\feature_data\total_lengths.mat');

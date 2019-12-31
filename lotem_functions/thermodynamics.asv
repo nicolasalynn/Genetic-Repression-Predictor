@@ -1,0 +1,16 @@
+function [outputArg1,outputArg2] = thermodynamics(inputArg1,inputArg2)
+
+%% Connect to Spark
+%sparkProp = containers.Map({'spark.executor.cores'}, {'1'});
+%conf = matlab.compiler.mlspark.SparkConf('AppName','myApp','Master','local[1]','SparkProperties',sparkProp);
+sc = matlab.compiler.mlspark.SparkContext(conf);
+
+%% textFile
+rdd = sc.textFile('/<matlabroot>/toolbox/matlab/demos/airlinesmall.csv');
+
+
+
+%outputArg1 = inputArg1;
+%outputArg2 = inputArg2;
+end
+

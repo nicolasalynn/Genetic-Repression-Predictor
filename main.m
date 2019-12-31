@@ -85,7 +85,7 @@ if calc_folding_e == 1
     folding_energies = find_folding_energies(windows_reshaped, dim);
     %fold_energy_time = toc;
 else
-    utr5 = load('data_sets/feature_data/folding_energies.mat');
+    load('data_sets/feature_data/folding_energies.mat');
     [X, y_obs, y_pred, m, correl] = data_pipeline(folding_energies{1, 3}, reshaped_repress{1, 3});
 end
 clearvars calc_folding_e
@@ -137,10 +137,20 @@ data_pipeline(orf_length, mean_repress_gene)
 
 %% Feature: MER Site Distance to closest terminus 
 
+load('data_sets\feature_data\reshaped_indices.mat');
+load('data_sets\feature_data\total_lengths.mat');
+
 x = bs_dist_edge();
-dist1 = x{1, 1};
-dist2 = x{1, 2};
-dist3 = x {1, 3};
+dist1 = x{1,1};
+dist2 = x{1,2};
+dist3 = x {1,3};
+
+repress_dist_utr5 = reshaped_indices{1,1};
+data_pipeline(dist1, repress_dist_utr5);
+repress_dist_orf = reshaped_repress{1,2};
+data_pipeline(dist2, repress_dist_orf);
+repress_dist_utr3 = reshaped_repress{1,3};
+data_pipeline(dist3, repress_dist_utr3);
 
 %% CAI (Michal)
 load('data_sets/feature_data/reshaped_nt_windows.mat');
