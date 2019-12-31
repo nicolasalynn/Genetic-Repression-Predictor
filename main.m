@@ -94,13 +94,11 @@ if calc_folding_e == 1
     folding_energies = find_folding_energies(windows_reshaped, dim);
     %fold_energy_time = toc;
 else
-    utr5 = load('data_sets/feature_data/folding_energies_utr5.mat');
-    orf = load('data_sets/feature_data/folding_energies_orf.mat');
-    utr3 = load('data_sets/feature_data/folding_energies_utr3.mat');
+    utr5 = load('data_sets/feature_data/folding_energies.mat');
+    [X, y_obs, y_pred, m, correl] = data_pipeline(folding_energies{1, 3}, reshaped_repress{1, 3});
 end
 clearvars calc_folding_e
-%%
-[X, y_obs, y_pred, m, correl] = data_pipeline(folding_energies{1, 3}, reshaped_repress{1, 3});
+
 %% Feature: Average Repression in presence and absence of binding site
 binding_or_no = all_indices;
 temp_repress = repress;
