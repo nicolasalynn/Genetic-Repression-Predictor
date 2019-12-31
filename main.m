@@ -66,8 +66,8 @@ load("data_sets/feature_data/good_repress.mat")
 load("data_sets/feature_data/binary_truth.mat")
 
 repress = table2array(repress(:, 2:end))';
-
 %% Feature: Number of Binding Sites Across all regions (Nico)
+
 combined_indices = all_indices(:, :, 1) + all_indices(:, :, 2) + all_indices(:, :, 3); % number of occurances accross all three sequences
 M = max(max(combined_indices));
 unique_vals = unique(combined_indices);
@@ -79,7 +79,8 @@ data_pipeline(combined_indices, repress);
 
 calc_folding_e = input("\nWould you like to calculate folding " + ...
     "energies?\nThis will take a few minutes..\n [Y]:1, [N]:0\n>>");
-if calc_folding_e == 1
+if calc_folding_e == 10
+    
     %tic
     dim = 0; % change this value depending of sequence region target
     folding_energies = find_folding_energies(windows_reshaped, dim);
@@ -91,6 +92,7 @@ end
 clearvars calc_folding_e
 
 %% Feature: Average Repression in presence and absence of binding site
+
 binding_or_no = all_indices;
 temp_repress = repress;
 binding_or_no(binding_or_no > 0) = 1;
@@ -189,5 +191,3 @@ data_pipeline(GC_content_UTR5, repress_GC_UTR5);
 repress_GC_UTR3 = reshaped_repress{1,3};
 data_pipeline(GC_content_UTR3, repress_GC_UTR3);
 
-
-%% Cleaning Data
