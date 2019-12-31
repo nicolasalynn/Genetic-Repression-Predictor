@@ -117,6 +117,13 @@ end
 
 data_pipeline(mir_length, mean_repress_miRNA)
 
+%% Feature: Conservation
+
+load('data_sets/feature_data/conservations.mat')
+load('data_sets/feature_data/reshaped_repress.mat')
+
+data_pipeline(conservation{1, 1}, reshaped_repress{1, 1});
+
 %% Feature: Length of ORF and repression 
 
 mean_repress_gene = nanmean(repress(2:end, :));
@@ -130,21 +137,10 @@ data_pipeline(orf_length, mean_repress_gene)
 
 %% Feature: MER Site Distance to closest terminus 
 
-% L = size(binding_indices,1);
-% %binding_indices is an unknown table, couldn't be open by me
-% for i = 1:1
-%     bs_index = binding_indices(i);
-%     %seq = 
-%     %x - ?
-%     dist = bs_dist_edge(seq, bs_index, x);
-% end
-
-
 x = bs_dist_edge();
 dist1 = x{1, 1};
 dist2 = x{1, 2};
 dist3 = x {1, 3};
-
 
 %% CAI (Michal)
 load('data_sets/feature_data/reshaped_nt_windows.mat');
