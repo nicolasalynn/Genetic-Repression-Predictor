@@ -171,9 +171,9 @@ load('data_sets/feature_data/reshaped_nt_windows.mat');
 Sequences_ORF = windows_reshaped{1,2};
 GC_content_ORF = GC_content_generator(Sequences_ORF);
 Sequences_UTR5 = windows_reshaped{1,1};
-GC_content_ORF = GC_content_generator(Sequences_UTR5);
+GC_content_UTR5 = GC_content_generator(Sequences_UTR5);
 Sequences_UTR3 = windows_reshaped{1,3};
-GC_content_ORF = GC_content_generator(Sequences_UTR3);
+GC_content_UTR3 = GC_content_generator(Sequences_UTR3);
 
 
 %% Cleaning Data
