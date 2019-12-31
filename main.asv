@@ -4,6 +4,14 @@ clear, clc
 %   interaction.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+%{
+    Technical notes:
+                        size(gene_training, 1) = 2947
+                        size(gene_training, 2) = 5
+                        length(mirtna_training) = 74
+%}
+
 addpath nico_functions
 addpath lotem_functions
 addpath michal_functions
@@ -148,7 +156,6 @@ dist3 = x {1, 3};
 
 %% CAI (Michal)
 load('data_sets/feature_data/reshaped_nt_windows.mat');
-load('data_sets/feature_data/reshaped_repress.mat');
 %reshaped_nt_windows.mat is windows_reshaped
 Sequences_ORF = windows_reshaped{1,2};
 CAI_ORF = CAI_generator(Sequences_ORF,codon_CAI);
@@ -157,12 +164,7 @@ CAI_UTR5 = CAI_generator(Sequences_UTR5,codon_CAI);
 Sequences_UTR3 = windows_reshaped{1,3};
 CAI_UTR3 = CAI_generator(Sequences_UTR3,codon_CAI);
 
-repress_CAI_ORF = reshaped_repress{1,2};
-data_pipeline(CAI_ORF, repress_CAI_ORF);
-repress_CAI_UTR5 = reshaped_repress{1,1};
-data_pipeline(CAI_UTR5, repress_CAI_UTR5);
-repress_CAI_UTR3 = reshaped_repress{1,3};
-data_pipeline(CAI_UTR3, repress_CAI_UTR3);
+data_pipeline(combined_indices, repress);
 
 %% GC content (Michal)
 
@@ -176,12 +178,11 @@ GC_content_UTR5 = GC_content_generator(Sequences_UTR5);
 Sequences_UTR3 = windows_reshaped{1,3};
 GC_content_UTR3 = GC_content_generator(Sequences_UTR3);
 
-repress_GC_ORF = reshaped_repress{1,2};
-data_pipeline(GC_content_ORF, repress_GC_ORF);
-repress_GC_UTR5 = reshaped_repress{1,1};
-data_pipeline(GC_content_UTR5, repress_GC_UTR5);
-repress_GC_UTR3 = reshaped_repress{1,3};
-data_pipeline(GC_content_UTR3, repress_GC_UTR3);
-
+repress_ORF = reshaped_repress{1,2};
+data_pipeline(GC_content_ORF, repress_ORF);
+repress_UTR5 = reshaped_repress{1,2};
+data_pipeline(GC_content_UTR5, repress_ORF);
+repress_UTR3 = reshaped_repress{1,2};
+data_pipeline(GC_content_UTR3, repress_UTR3);
 
 %% Cleaning Data
