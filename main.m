@@ -140,8 +140,12 @@ for i = 1:1
 end
 
 %% CAI (Michal)
-
-CAI = CAI_generator(nt_windows,codon_CAI);
+Sequences_ORF = windows_reshaped{1,2};
+CAI_ORF = CAI_generator(Sequences_ORF,codon_CAI);
+Sequences_UTR5 = windows_reshaped{1,1};
+CAI_UTR5 = CAI_generator(Sequences_UTR5,codon_CAI);
+Sequences_UTR3 = windows_reshaped{1,3};
+CAI_UTR3 = CAI_generator(Sequences_UTR3,codon_CAI);
 
 %% GC content (Michal)
 
