@@ -15,9 +15,9 @@ l_utr5 = lengths_reshaped{1,1};
 l_orf = lengths_reshaped{1,2};
 l_utr3 = lengths_reshaped{1,3};
 
-num1 = size(utr5);
-num2 = size(orf);
-num3 = size(utr3);
+num1 = size(utr5,2);
+num2 = size(orf,2);
+num3 = size(utr3,2);
 
     for i = 1:1:num1
       x1 = l_utr5(i);

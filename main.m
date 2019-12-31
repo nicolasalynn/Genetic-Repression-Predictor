@@ -149,9 +149,9 @@ dist3 = x {1,3};
 
 repress_dist_utr5 = reshaped_indices{1,1};
 data_pipeline(dist1, repress_dist_utr5);
-repress_dist_orf = reshaped_repress{1,2};
+repress_dist_orf = reshaped_indices{1,2};
 data_pipeline(dist2, repress_dist_orf);
-repress_dist_utr3 = reshaped_repress{1,3};
+repress_dist_utr3 = reshaped_indices{1,3};
 data_pipeline(dist3, repress_dist_utr3);
 
 %% CAI (Michal)
