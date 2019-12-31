@@ -41,6 +41,7 @@ clearvars miRs_training
 temp = load('data_sets/challenge_data/repress.mat');
 repress = temp.repress;
 clearvars temp
+
 %% Find the first instance of miRNA mRNA binding for each combination (Nico)
 
 run_initiation = input("Do you want to recalculate the miRNA-mRNA binding "  +  ...
@@ -107,14 +108,8 @@ binding_or_no(binding_or_no ~= 1) = 0;
 data_pipeline(binding_or_no(:,:,1), repress);
 
 %% Feature: Nico's CAI (some tweaks to Michal's code)
-
-
-load("data_sets/feature_data/reshaped_nt_windows.mat")
-load("data_sets/feature_data/whole_sequence.mat")
-load("data_sets/feature_data/reshaped_repress.mat")
-CAI = CAI_generator_nico(windows_reshaped{1, 2}, codon_CAI);
-CAI2 = CAI_generator_nico(whole_reshaped{1, 2}, codon_CAI);
-data_pipeline(CAI./CAI2, reshaped_repress{1, 2});
+CAI = CAI_generator_nico(true_nt_windows(:,:, 2), codon_CAI);
+data_pipeline(CAI, repress);
 
 %% Feature: Length of miRNA and repression (find average repression levels across each of 74 miRNAs)
 mean_repress_miRNA = nanmean(repress(:,2:end)');
@@ -138,25 +133,16 @@ data_pipeline(orf_length, mean_repress_gene)
 
 %% Feature: MER Site Distance to closest terminus 
 
-% L = size(binding_indices,1);
-% %binding_indices is an unknown table, couldn't be open by me
-% for i = 1:1
-%     bs_index = binding_indices(i);
-%     %seq = 
-%     %x - ?
-%     dist = bs_dist_edge(seq, bs_index, x);
-% end
-
-
-x = bs_dist_edge();
-dist1 = x{1, 1};
-dist2 = x{1, 2};
-dist3 = x {1, 3};
-
+L = size(binding_indices,1);
+%binding_indices is an unknown table, couldn't be open by me
+for i = 1:1
+    bs_index = binding_indices(i);
+    %seq = 
+    %x - ?
+    dist = bs_dist_edge(seq, bs_index, x);
+end
 
 %% CAI (Michal)
-load('data_sets/feature_data/reshaped_nt_windows.mat');
-%reshaped_nt_windows.mat is windows_reshaped
 Sequences_ORF = windows_reshaped{1,2};
 CAI_ORF = CAI_generator(Sequences_ORF,codon_CAI);
 Sequences_UTR5 = windows_reshaped{1,1};
@@ -166,14 +152,12 @@ CAI_UTR3 = CAI_generator(Sequences_UTR3,codon_CAI);
 
 %% GC content (Michal)
 
-load('data_sets/feature_data/reshaped_nt_windows.mat');
-%reshaped_nt_windows.mat is windows_reshaped
 Sequences_ORF = windows_reshaped{1,2};
 GC_content_ORF = GC_content_generator(Sequences_ORF);
 Sequences_UTR5 = windows_reshaped{1,1};
 GC_content_ORF = GC_content_generator(Sequences_UTR5);
 Sequences_UTR3 = windows_reshaped{1,3};
-GC_content_ORF = GC_content_generator(Sequences_UTR3);
+GC_content_ORF = GC_content_generator(Sequences_v);
 
 
 %% Cleaning Data
