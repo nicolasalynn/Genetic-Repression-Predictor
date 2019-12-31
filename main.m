@@ -41,7 +41,6 @@ clearvars miRs_training
 temp = load('data_sets/challenge_data/repress.mat');
 repress = temp.repress;
 clearvars temp
-
 %% Find the first instance of miRNA mRNA binding for each combination (Nico)
 
 run_initiation = input("Do you want to recalculate the miRNA-mRNA binding "  +  ...
@@ -108,8 +107,15 @@ binding_or_no(binding_or_no ~= 1) = 0;
 data_pipeline(binding_or_no(:,:,1), repress);
 
 %% Feature: Nico's CAI (some tweaks to Michal's code)
+
+
+load("data_sets/feature_data/nt_windows.mat")
+load("data_sets/feature_data/whole_sequence.mat")
 CAI = CAI_generator_nico(true_nt_windows(:,:, 2), codon_CAI);
-data_pipeline(CAI, repress);
+CAI2 = CAI_generator_nico(whole_reshaped{1, 2}, codon_CAI);
+data_pipeline(CAI, reshaped_repress{1, 2});
+%%
+data_pipeline(CAI2, repress);
 
 %% Feature: Length of miRNA and repression (find average repression levels across each of 74 miRNAs)
 mean_repress_miRNA = nanmean(repress(:,2:end)');
