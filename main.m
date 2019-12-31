@@ -64,11 +64,16 @@ end
 clearvars run_windows
 %% Load Data
 
-load("data_sets/feature_data/binding_indices.mat")
+load("data_sets/feature_data/true_indices.mat")
+load("data_sets/feature_data/reshaped_repress.mat")
+load("data_sets/feature_data/reshaped_nt_windows.mat")
+load("data_sets/feature_data/reshaped_indices.mat")
+load("data_sets/feature_data/true_indices.mat")
 load("data_sets/feature_data/nt_windows.mat")
 load("data_sets/feature_data/all_indices.mat")
-load("data_sets/challenge_data/repress.mat")
-load('data_sets/feature_data/true_nt_windows.mat')
+load("data_sets/feature_data/good_repress.mat")
+load("data_sets/feature_data/binary_truth.mat")
+
 repress = table2array(repress(:, 2:end))';
 
 %% Feature: Number of Binding Sites Across all regions (Nico)
