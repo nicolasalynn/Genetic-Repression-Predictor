@@ -43,8 +43,8 @@ function binding_indices(mirs_training, gene_training, repress)
         
         waitbar(i/length(mirs_training), f, "Looping through miRNAs...")
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        mirna_seq = char(mirs_training(2, i));      % mirna_seq is the sequence of the miRNA
-        seed = mirna_seq(2:8);                      % this should be the seed (2:8) of the miRNA
+        mirna_seq = char(mirs_training(2, i));          % mirna_seq is the sequence of the miRNA
+        seed = mirna_seq(2:8);                          % this should be the seed (2:8) of the miRNA
         mer_site_7 = seqrcomplement(seed);              % finding the reverse complement of the seed
         mer_site_8 = strcat(mer_site_7,'A');            % adding the a is so that it follows mer78 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

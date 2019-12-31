@@ -111,7 +111,7 @@ data_pipeline(binding_or_no(:,:,1), repress);
 
 load("data_sets/feature_data/reshaped_nt_windows.mat")
 load("data_sets/feature_data/whole_sequence.mat")
-load("data_sets/feature_data/reshaped_repress.mat")
+load("data_sets/featu
 CAI = CAI_generator_nico(windows_reshaped{1, 2}, codon_CAI);
 CAI2 = CAI_generator_nico(whole_reshaped{1, 2}, codon_CAI);
 data_pipeline(CAI./CAI2, reshaped_repress{1, 2});
@@ -138,21 +138,14 @@ data_pipeline(orf_length, mean_repress_gene)
 
 %% Feature: MER Site Distance to closest terminus 
 
-% L = size(binding_indices,1);
-% %binding_indices is an unknown table, couldn't be open by me
-% for i = 1:1
-%     bs_index = binding_indices(i);
-%     %seq = 
-%     %x - ?
-%     dist = bs_dist_edge(seq, bs_index, x);
-% end
-
-
-x = bs_dist_edge();
-dist1 = x{1, 1};
-dist2 = x{1, 2};
-dist3 = x {1, 3};
-
+L = size(binding_indices,1);
+%binding_indices is an unknown table, couldn't be open by me
+for i = 1:1
+    bs_index = binding_indices(i);
+    %seq = 
+    %x - ?
+    dist = bs_dist_edge(seq, bs_index, x);
+end
 
 %% CAI (Michal)
 Sequences_ORF = windows_reshaped{1,2};
