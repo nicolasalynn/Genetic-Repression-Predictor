@@ -64,11 +64,16 @@ end
 clearvars run_windows
 %% Load Data
 
-load("data_sets/feature_data/binding_indices.mat")
+load("data_sets/feature_data/true_indices.mat")
+load("data_sets/feature_data/reshaped_repress.mat")
+load("data_sets/feature_data/reshaped_nt_windows.mat")
+load("data_sets/feature_data/reshaped_indices.mat")
+load("data_sets/feature_data/true_indices.mat")
 load("data_sets/feature_data/nt_windows.mat")
 load("data_sets/feature_data/all_indices.mat")
-load("data_sets/challenge_data/repress.mat")
-load('data_sets/feature_data/true_nt_windows.mat')
+load("data_sets/feature_data/good_repress.mat")
+load("data_sets/feature_data/binary_truth.mat")
+
 repress = table2array(repress(:, 2:end))';
 
 %% Feature: Number of Binding Sites Across all regions (Nico)
@@ -89,13 +94,11 @@ if calc_folding_e == 1
     folding_energies = find_folding_energies(windows_reshaped, dim);
     %fold_energy_time = toc;
 else
-    utr5 = load('data_sets/feature_data/folding_energies_utr5.mat');
-    orf = load('data_sets/feature_data/folding_energies_orf.mat');
-    utr3 = load('data_sets/feature_data/folding_energies_utr3.mat');
+    utr5 = load('data_sets/feature_data/folding_energies.mat');
+    [X, y_obs, y_pred, m, correl] = data_pipeline(folding_energies{1, 3}, reshaped_repress{1, 3});
 end
 clearvars calc_folding_e
-%%
-[X, y_obs, y_pred, m, correl] = data_pipeline(folding_energies{1, 3}, reshaped_repress{1, 3});
+
 %% Feature: Average Repression in presence and absence of binding site
 binding_or_no = all_indices;
 temp_repress = repress;
