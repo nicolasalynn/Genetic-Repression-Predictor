@@ -4,14 +4,6 @@ clear, clc
 %   interaction.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-%{
-    Technical notes:
-                        size(gene_training, 1) = 2947
-                        size(gene_training, 2) = 5
-                        length(mirtna_training) = 74
-%}
-
 addpath nico_functions
 addpath lotem_functions
 addpath michal_functions
