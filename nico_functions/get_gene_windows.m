@@ -67,7 +67,8 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width)
                     end
                 else
                     true_nt_windows(mirna, gene, 1) = NaN;
-                    whole_sequence(mirna, gene, 3) = NaN;
+                    whole_sequence(mirna, gene, 1) = NaN;
+                    average_conservation(mirna, gene, 1) = NaN;
 
                 end
                 
@@ -92,6 +93,8 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width)
                 else
                     true_nt_windows(mirna, gene, 2) = NaN;                    
                     whole_sequence(mirna, gene, 2) = NaN;
+                    average_conservation(mirna, gene, 2) = NaN;
+
                 end
                     
                     
@@ -110,12 +113,12 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width)
                         average_conservation(mirna, gene, 3) = mean(conservation_vector(utr5_length + orf_length + utr3_length - window:utr5_length + orf_length + utr3_length));                        
                     else
                         true_nt_windows(mirna, gene, 3) = utr3(index_val_utr3 - window/2:index_val_utr3 + window/2);
-                        average_conservation(mirna, gene, 2) = mean(conservation_vector(utr5_length + orf_length + index_val_utr3 - window/2:utr5_length + orf_length + index_val_utr3 + window/2));                   
+                        average_conservation(mirna, gene, 3) = mean(conservation_vector(utr5_length + orf_length + index_val_utr3 - window/2:utr5_length + orf_length + index_val_utr3 + window/2));                   
                     end
                 else
                     true_nt_windows(mirna, gene, 3) = NaN;
                     whole_sequence(mirna, gene, 3) = NaN;
-
+                    average_conservation(mirna, gene, 3) = NaN;
                 end
                     
                     
@@ -128,7 +131,7 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width)
     total_lengths(total_lengths == 0) = NaN;
     lengths_reshaped = reshape_nico(total_lengths, "num");
     whole_reshaped = reshape_nico(whole_sequence, "str");
-    average_conservation(average_conservation == 0) = NaN;
+    %average_conservation(average_conservation == 0) = NaN;
     conservation = reshape_nico(average_conservation, "num");
     
     

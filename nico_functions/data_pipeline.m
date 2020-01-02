@@ -13,7 +13,6 @@ function [X, y_obs, y_pred, m, correlation] = data_pipeline(X_ugly, y_ugly)
     m = regress(y_obs', X');
     y_pred =  X .* m;
     
-    
     correlation = corr(y_pred', y_obs', 'type', 'spearman');
     data_plotter(X, y_obs, y_pred, m);
     

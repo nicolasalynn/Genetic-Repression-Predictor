@@ -1,7 +1,7 @@
 function [dist] = bs_dist_edge()
 
-load('data_sets\feature_data\reshaped_indices.mat');
-load('data_sets\feature_data\total_lengths.mat');
+load('data_sets/feature_data/reshaped_indices.mat');
+load('data_sets/feature_data/total_lengths.mat');
 
 dist1 = [];
 dist2 = [];
