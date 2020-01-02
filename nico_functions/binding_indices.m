@@ -13,7 +13,7 @@
 %}
 
 
-function binding_indices(mirs_training, gene_training, repress)
+function binding_indices(mirs_training, gene_training, repress, path)
 
     f = waitbar(0, "Calculating Window Energies...");
 
@@ -38,15 +38,17 @@ function binding_indices(mirs_training, gene_training, repress)
     orfs = table2array(gene_training(:, 3));
     utr3 = table2array(gene_training(:,4));
    
-  
-    for i = 1:length(mirs_training)                 % i = 1:74
+    length(mirs_training)
+    
+    
+    for i = 1:length(mirs_training)                 
         
         waitbar(i/length(mirs_training), f, "Looping through miRNAs...")
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        mirna_seq = char(mirs_training(2, i));          % mirna_seq is the sequence of the miRNA
-        seed = mirna_seq(2:8);                          % this should be the seed (2:8) of the miRNA
-        mer_site_7 = seqrcomplement(seed);              % finding the reverse complement of the seed
-        mer_site_8 = strcat(mer_site_7,'A');            % adding the a is so that it follows mer78 
+        mirna_seq = char(mirs_training(1, i));          
+        seed = mirna_seq(2:8);                          
+        mer_site_7 = seqrcomplement(seed);              
+        mer_site_8 = strcat(mer_site_7,'A');            
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         for j = 1:size(gene_training, 1)            % j = 1:3947
             
@@ -104,8 +106,12 @@ function binding_indices(mirs_training, gene_training, repress)
 
     end
     
+    size(all_indices)
+    
     index_truths = all_indices;
     index_truths(index_truths ~= 1) = 0;
+    
+    
 
     usability(:, :, 1) = index_truths(:, :, 1) + repress_truth;
     usability(:, :, 2) = index_truths(:, :, 2) + repress_truth;
@@ -122,20 +128,22 @@ function binding_indices(mirs_training, gene_training, repress)
     usable_repress(:,:,1) = table2array(repress(:, 2:end))';
     usable_repress(:,:,2) = table2array(repress(:, 2:end))';
     usable_repress(:,:,3) = table2array(repress(:, 2:end))';
+    size(usability)
+    size(usable_repress)
     usable_repress(usability ~= 1) = NaN;
     
     
-    save('data_sets/feature_data/true_indices.mat', 'true_indices') %usable 
-    save('data_sets/feature_data/binary_truth.mat', 'usability')    %binary table 
-    save('data_sets/feature_data/all_indices.mat', 'all_indices')   %num of binding sites
-    save('data_sets/feature_data/good_repress.mat', 'usable_repress')   %usable repress values
+    save(strcat(path, 'true_indices.mat'), 'true_indices') %usable 
+    save(strcat(path, 'binary_truth.mat'), 'usability')    %binary table 
+    save(strcat(path, 'all_indices.mat'), 'all_indices')   %num of binding sites
+    save(strcat(path, 'good_repress.mat'), 'usable_repress')   %usable repress values
     
     
-    reshaped_repress = reshape_nico(usable_repress);
-    reshaped_indices = reshape_nico(true_indices);
+    reshaped_repress = reshape_nico(usable_repress, "num");
+    reshaped_indices = reshape_nico(true_indices, "num");
     
-    save('data_sets/feature_data/reshaped_repress.mat', 'reshaped_repress');
-    save('data_sets/feature_data/reshaped_indices.mat', 'reshaped_indices');
+    save(strcat(path, 'reshaped_repress.mat'), 'reshaped_repress');
+    save(strcat(path, 'reshaped_indices.mat'), 'reshaped_indices');
     
     
     close(f)

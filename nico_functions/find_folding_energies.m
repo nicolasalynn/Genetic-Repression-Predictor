@@ -1,8 +1,7 @@
-function folding_energies = find_folding_energies(nt_windows, dim)
+function folding_energies = find_folding_energies(nt_windows, method)
     
     f = waitbar(0, "Calculating Window Energies...");
     temp_size = size(nt_windows);  %1, 3
-    
     if (temp_size(1) == 1 || temp_size(2) ==1)
         disp("successfully entered")
         folding_energies = cell(1, temp_size(2));
@@ -18,40 +17,38 @@ function folding_energies = find_folding_energies(nt_windows, dim)
         end
         
     else
-        mi_length = size(nt_windows, 1);
-        ge_length = size(nt_windows, 2);
-        folding_energies = zeros(mi_length, ge_length);
+     
+        [mi_length, ge_length, c] = size(nt_windows);
 
+        folding_energies = zeros(mi_length, ge_length, c);
+        
         nt_windows(isempty(nt_windows)) = '';
         nt_windows(ismissing(nt_windows)) = '';
+        
+        for k = 1:c
+            for i = 1:mi_length
+                waitbar(i/mi_length, f, "Looping through windows...")
 
-       nt_windows(1, 112)
+                for j = 1:ge_length
+                    waitbar(j*i*k/(mi_length*ge_length*c), f, strcat("Looping through dimesion",num2str(c)));
 
-        for i = 1:mi_length
-            waitbar(i/mi_length, f, "Looping through windows...")
+                    if (nt_windows(i, j) == '')
+                        folding_energies(i, j) = NaN;
+                    else
+                        sequence = char(nt_windows(i, j));
+                        [~, folding_energies(i, j), ~] = rnafold(sequence);
+                    end
 
-            for j = 1:ge_length
-
-                if (nt_windows(i, j) == '')
-                    folding_energies(i, j) = NaN;
-                else
-                    sequence = char(nt_windows(i, j));
-                    [discard, folding_energies(i, j), discard2] = rnafold(sequence);
                 end
-                clearvars discard discard2
-
             end
         end
+        
     end
     
-    if dim == 1
-            save('data_sets/feature_data/folding_energies_utr5.mat', 'folding_energies')        
-    elseif dim == 2
-            save('data_sets/feature_data/folding_energies_orf.mat', 'folding_energies')
-    elseif dim == 3
-            save('data_sets/feature_data/folding_energies_utr3.mat', 'folding_energies')
-    else
-            save('data_sets/feature_data/folding_energies.mat', 'folding_energies')
+    if method == "training"
+        save('data_sets/feature_data/folding_energies.mat', 'folding_energies')
+    elseif method == "validation"
+        save('data_sets/validation_data/folding_energies.mat', 'folding_energies')
     end
         close(f)
 

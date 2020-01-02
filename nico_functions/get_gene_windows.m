@@ -1,6 +1,6 @@
 %% Returns the 63 nucleotide window around the first index of the seed area
 
-function get_gene_windows(gene_list, indices, file_save_name, window_width)
+function get_gene_windows(gene_list, indices, file_save_name, window_width, method)
     
     f = waitbar(0, "Calculating Window Energies...");
 
@@ -9,12 +9,21 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width)
     
     indices(isnan(indices)) = 0;
     
-    file_name_1 = strcat('data_sets/feature_data/', char(file_save_name), '.mat');
-    file_name_2 = strcat('data_sets/feature_data/reshaped_', char(file_save_name), '.mat');
-    file_name_3 = strcat('data_sets/feature_data/total_lengths.mat');
-    file_name_4 = strcat('data_sets/feature_data/whole_sequence.mat');
-    file_name_5 = 'data_sets/feature_data/conservations.mat';
-    
+    if method == "training"
+        file_name_1 = strcat('data_sets/feature_data/', char(file_save_name), '.mat');
+        file_name_2 = strcat('data_sets/feature_data/reshaped_', char(file_save_name), '.mat');
+        file_name_3 = strcat('data_sets/feature_data/total_lengths.mat');
+        file_name_4 = strcat('data_sets/feature_data/whole_sequence.mat');
+        file_name_5 = 'data_sets/feature_data/conservations.mat';
+    elseif method == "validation"
+        file_name_1 = strcat('data_sets/validation_data/', char(file_save_name), '.mat');
+        file_name_2 = strcat('data_sets/validation_data/reshaped_', char(file_save_name), '.mat');
+        file_name_3 = strcat('data_sets/validation_data/total_lengths.mat');
+        file_name_4 = strcat('data_sets/validation_data/whole_sequence.mat');
+        file_name_5 = 'data_sets/validation_data/conservations.mat';
+    end
+        
+        
     window = window_width;
     orfs = table2array(gene_list(:, 3));
     utr5s = table2array(gene_list(:, 2));    %
@@ -136,6 +145,8 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width)
     
     
     clear binding_indices
+    
+    
     save(file_name_1, 'true_nt_windows')
     save(file_name_2, 'windows_reshaped')
     save(file_name_3, 'lengths_reshaped')

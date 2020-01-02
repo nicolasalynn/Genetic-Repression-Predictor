@@ -1,71 +1,180 @@
 %% Create model here
 clear, clc
 
-%utr5 folding energies
-%utr3 conservation
-%distances to terminus
-%utr3 cai
+load('data_sets/challenge_data/miR_validation.mat')
 
-load('data_sets/feature_data/conservations.mat')
-load('data_sets/feature_data/folding_energies.mat')
-load('data_sets/feature_data/cai_reshaped.mat')
-load('data_sets/feature_data/terminus_distance.mat')
-load('data_sets/feature_data/reshaped_repress.mat')
-load('data_sets/feature_data/reshaped_indices.mat')
+addpath nico_functions
+addpath lotem_functions
+addpath michal_functions
 
+%  Pull Data  --- THIS DOES NOT HAVE TO BE TOUCHED
 
-%% UTR5' Data
-X = [conservation{1, 1}' folding_energies{1, 1}' terminus_distance{1, 1}' cai_reshaped{1, 1}' reshaped_indices{1,1}'];
-Y = reshaped_repress{1, 1}';
-m = regress(Y, X);
-tog = [X Y];
-y_predict =  m' * X';
-mstep = stepwiselm(tog, 'linear');
-y_predict_step = predict(mstep, X);
+clear, clc 
+challenge_path = 'data_sets/validation_data/';
+
+load('data_sets/challenge_data/genes_validation.mat');
+gene_validation = genes;
 
 
-correlation = corr(Y, y_predict')
+miRs_validation = load('data_sets/challenge_data/miR_validation.mat');
+mirs_validation(1,:) = keys(miRs_validation.miRs);
+mirs_validation(2,:) = values(miRs_validation.miRs);
 
 
-%% ORF Data
+save(strcat(challenge_path, 'gene_validation_use.mat'), 'gene_validation');
+save(strcat(challenge_path, 'mirs_validation_use.mat'), 'mirs_validation');
 
-X = [conservation{1, 2}' folding_energies{1, 2}' terminus_distance{1, 2}' cai_reshaped{1, 2}' reshaped_indices{1,2}'];
-Y = reshaped_repress{1, 2}';
-m = regress(Y, X);
-y_predict =  m' * X';
 
-correlation = corr(Y, y_predict')
-
-%% UTR3' Data
-
-X = [conservation{1, 3}' folding_energies{1, 3}' terminus_distance{1, 3}' cai_reshaped{1, 3}' reshaped_indices{1,3}'];
-Y = reshaped_repress{1, 3}';
-m = regress(Y, X);
-y_predict =  m' * X';
-
-correlation = corr(Y, y_predict')
-
-%% Other Data
+%% Find the first instance of miRNA mRNA binding for each combination (Nico)
 clear, clc
 
-load('data_sets/feature_data/orf_length.mat')
-X = orf_length';
-load('data_sets/feature_data/mean_repress_gene.mat')
-Y = mean_repress_gene';
+load('data_sets/validation_data/mirs_validation_use.mat')
+load('data_sets/validation_data/gene_validation_use.mat')
 
-m = regress(Y, X);
-y_predict =  m' * X';
 
-correlation = corr(Y, y_predict')
+run_initiation = input("Do you want to recalculate the miRNA-mRNA binding "  +  ...
+"indices? This action will take approximatelly 2 minutes... \n([Y] = 1, [N] = 0):  ");
+
+mirs_validation = mirs_validation(2, :);
+
+if run_initiation 
+    fprintf("\nThis will take a minute...\n\n");
+    fake_repression = array2table(ones(size(gene_validation, 1), 2));
+    binding_indices_validation(mirs_validation, gene_validation, fake_repression, 'data_sets/validation_data/');
+end
+clearvars run_initiation
+
+%%
+
+clear, clc
+
+load('data_sets/validation_data/true_indices.mat')
+load('data_sets/validation_data/reshaped_indices.mat')
+load('data_sets/validation_data/all_indices.mat')
+load('data_sets/validation_data/binary_truth.mat')
+load('data_sets/validation_data/gene_validation_use.mat')
+
+get_gene_windows(gene_validation,true_indices, 'validation_windows', 74, "validation");
+
+sum(usability(:,:,1))
+%%
+clear, clc
+load('data_sets/validation_data/reshaped_validation_windows.mat')
+
+find_folding_energies(windows_reshaped, "validation");
+ 
+%%
+
+clear, clc
+
+reshaped_indices = load('data_sets/validation_data/reshaped_indices.mat');
+regression_lengths = load('data_sets/validation_data/total_lengths.mat');
+
+[terminus_distance_one, terminus_distance_two] = ...
+    distance_edge(reshaped_indices.reshaped_indices, regression_lengths.lengths_reshaped, "validation");
+
+save('data_sets/validation_data/terminus_distance_one.mat', 'terminus_distance_one')
+save('data_sets/validation_data/terminus_distance_two.mat', 'terminus_distance_two')
+%%
+
+clear, clc
+
+clear, clc
+load('data_sets/validation_data/reshaped_validation_windows.mat');
+load('data_sets/challenge_data/codon_CAI.mat')
+
+%reshaped_nt_windows.mat is windows_reshaped
+Sequences_ORF = windows_reshaped{1,2};
+CAI_ORF = CAI_generator(Sequences_ORF,codon_CAI);
+Sequences_UTR5 = windows_reshaped{1,1};
+CAI_UTR5 = CAI_generator(Sequences_UTR5,codon_CAI);
+Sequences_UTR3 = windows_reshaped{1,3};
+CAI_UTR3 = CAI_generator(Sequences_UTR3,codon_CAI);
+
+cai_reshaped = cell(1, 3);
+cai_reshaped{1, 1} = CAI_UTR5;
+cai_reshaped{1, 2} = CAI_ORF;
+cai_reshaped{1,3} = CAI_UTR3;
+
+clearvars ans CAI_ORF CAI_UTR3 CAI_UTR5 Sequences_ORF Sequences_UTR3 Sequences_UTR5 titles windows_reshaped i codon_CAI 
+save('data_sets/validation_data/cai_reshaped.mat', 'cai_reshaped')
+
+%%
+
+clear, clc
+
+load('data_sets/validation_data/reshaped_validation_windows.mat');
+Sequences_ORF = windows_reshaped{1,2};
+GC_content_ORF = GC_content_generator(Sequences_ORF);
+Sequences_UTR5 = windows_reshaped{1,1};
+GC_content_UTR5 = GC_content_generator(Sequences_UTR5);
+Sequences_UTR3 = windows_reshaped{1,3};
+GC_content_UTR3 = GC_content_generator(Sequences_UTR3);
+
+gc_reshaped = cell(1, 3);
+gc_reshaped{1, 1} = GC_content_UTR5;
+gc_reshaped{1, 2} = GC_content_ORF;
+gc_reshaped{1,3} = GC_content_UTR3;
+
+clearvars ans CAI_ORF CAI_UTR3 CAI_UTR5 Sequences_ORF Sequences_UTR3 Sequences_UTR5 titles windows_reshaped i codon_CAI 
+save('data_sets/validation_data/gc_reshaped.mat', 'gc_reshaped')
+
 
 %%
 clear, clc
 
-load('data_sets/feature_data/mir_length.mat')
-load('data_sets/feature_data/mean_repress_miRNA.mat');
-X = mir_length';
-Y = mean_repress_miRNA';
-m = regress(Y, X);
-y_predict =  m' * X';
+load('data_sets/validation_data/whole_sequence.mat')
 
-correlation = corr(Y, y_predict')
+regression_lengths = cell(1, 3);
+for i = 1:3
+    seqs = whole_reshaped{i};
+    lengths = zeros(1, length(seqs));
+    for j = 1:length(seqs)
+        lengths(j) = strlength(seqs(j));
+    end
+    regression_lengths{i} = lengths;
+end
+save('data_sets/validation_data/regression_lengths.mat', 'regression_lengths')
+
+
+%%
+
+
+
+clear, clc
+
+load('data_sets/validation_data/conservations.mat')
+load('data_sets/validation_data/folding_energies.mat')
+load('data_sets/validation_data/lengths_from_end.mat')
+load('data_sets/validation_data/lengths_from_either.mat')
+load('data_sets/validation_data/cai_reshaped.mat')
+load('data_sets/validation_data/regression_lengths.mat')
+load('data_sets/validation_data/gc_reshaped.mat')
+load('data_sets/validation_data/terminus_distance_one.mat')
+load('data_sets/validation_data/terminus_distance_two.mat')
+
+load('data_sets/model_coefficients/lasso_coef.mat')
+
+coef = lasso_coef.coef;
+coef0 = lasso_coef.coef0;
+
+clearvars ans dim i index_data length_data method disatnce_cell_tot distance_cell_end
+
+
+
+for i = 1:3
+   
+    X = [cai_reshaped{i}', conservation{i}', gc_reshaped{i}',reshaped_indices{i}', terminus_distance_one{i}', folding_energies{i}'];
+     
+    y_pred = coef' * X' + coef0;  
+    
+end
+
+
+
+
+
+
+
+
+
