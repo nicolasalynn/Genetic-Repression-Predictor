@@ -40,7 +40,8 @@ mirs_validation = mirs_validation(2, :);
 if run_initiation 
     fprintf("\nThis will take a minute...\n\n");
     fake_repression = array2table(ones(size(gene_validation, 1), 2));
-    binding_indices_validation(mirs_validation, gene_validation, fake_repression, 'data_sets/validation_data/');
+    temp = binding_indices_validation(mirs_validation, gene_validation, 'data_sets/validation_data/');
+
 end
 clearvars run_initiation
 
@@ -49,14 +50,10 @@ clearvars run_initiation
 clear, clc
 
 load('data_sets/validation_data/true_indices.mat')
-load('data_sets/validation_data/reshaped_indices.mat')
-load('data_sets/validation_data/all_indices.mat')
-load('data_sets/validation_data/binary_truth.mat')
 load('data_sets/validation_data/gene_validation_use.mat')
 
 get_gene_windows(gene_validation,true_indices, 'validation_windows', 74, "validation");
 
-sum(usability(:,:,1))
 %%
 clear, clc
 load('data_sets/validation_data/reshaped_validation_windows.mat')
@@ -138,8 +135,6 @@ save('data_sets/validation_data/regression_lengths.mat', 'regression_lengths')
 
 
 %%
-
-
 
 clear, clc
 
