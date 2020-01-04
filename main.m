@@ -124,7 +124,7 @@ for i = 1:3
         lengths(j) = strlength(seqs(j));
     end
     total_lengths{i} = lengths;
-    data_pipeline(total_lengths{i},reshaped_repress{i}); 
+    slope_of_sequencelength{i} = data_pipeline(total_lengths{i},reshaped_repress{i}); 
 
 end
 
@@ -165,11 +165,12 @@ for i = 1:size(seq_lengths, 1)
         seq_lengths(i, j) = strlength(sequences(i, j));
     end
     fprintf("\nCurrent Sequence Type: %s", titles(i))
-    data_pipeline(seq_lengths(i, :), mean_repress_gene);
+    m_average_length{i} = data_pipeline(seq_lengths(i, :), mean_repress_gene);
 end
 
 save('data_sets/feature_data/seq_lengths.mat', 'seq_lengths')
 save('data_sets/feature_data/mean_repress_gene.mat', 'mean_repress_gene')
+save('regression_models/m_average_length.mat', 'm_average_length')
 clearvars gene_training i j repress_use sequences titles ans
 
 %% Feature: Thermodynamics
@@ -526,188 +527,87 @@ load('data_sets/feature_data/tai_ratio.mat')
 load('data_sets/feature_data/conservations.mat')
 load('data_sets/feature_data/conservation_ratios.mat')
 load('data_sets/feature_data/whole_conservations.mat')%%
-%%
 
-for i = 1
-   
-    y = reshaped_repress{i}';
-    X = [cai_reshaped{i}', cai_whole_reshaped{i}', cai_ratio{i}', ...
-        conservation{i}', whole_conservations_reshaped{i}', conservation_ratios{i}', ...
-        gc_reshaped{i}', gc_whole_reshaped{i}', gc_ratio{i}', ...
-        reshaped_indices{i}', terminus_distance_one{i}', terminus_distance_two{i}',...
-        distance_ratio_one{i}', distance_ratio_two{i}', distance_ratio_three{i}', ...
-        folding_energies{i}', ...
-        tai_reshaped{i}', tai_whole_reshaped{i}', tai_ratio{i}'];
-    
-    [B, info] = lasso(X,y);
-    
-    coef = B(:,1);
-    coef0 = info.Intercept(1);
-    lasso_model{i} = struct('coef', coef, 'coef0', coef0);
-    
-    normalized_X = coef' * X';
-    y_pred = normalized_X' + coef0;
-    
-    correlation = corr(y_pred, y) * 100;
-    fprintf("\nPearson Lasso Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
-    fprintf("\nSpearman Lasso Correlation: %.2f%%\n", correlation)
-    
-    stepwise_model{i} = stepwiselm(X, y, 'linear');
-    y_pred = predict(stepwise_model{i}, X);
-    
-    correlation = corr(y_pred, y) * 100;
-    fprintf("\nPearson Step Wise Regression Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
-    fprintf("\nSpearman Step Wise Regression Correlation: %.2f%%\n", correlation)
-
-    m = regress(y, X);
-    y_pred = X*m;
-    correlation = corr(y_pred, y) * 100;
-    fprintf("\nPearson Simple Regression Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
-    fprintf("\nSpearman Simple Regression Correlation: %.2f%%\n", correlation)
-
-end
-
-save('regression_models/lasso_model.mat', 'lasso_model')
-save('regression_models/stepwise_model.mat', 'stepwise_model')
-
-%% Regression Models with Suggestions
+%% ORF
 clc
 
-disp('For UTR5')
-
-stepwise_model_ratios = cell(1, 3);
-lasso_model_ratios = cell(1, 3);
-for i = 1:3 
+for i = 2
    
     y = reshaped_repress{i}';
-
-    X = [cai_ratio{i}', ...
-        conservation_ratios{i}', ...
-        gc_ratio{i}', ...
-        distance_ratio_one{i}', ...
-        tai_ratio{i}'];
-    
-
+   
+     X = [cai_reshaped{i}', cai_whole_reshaped{i}', cai_ratio{i}',conservation{i}', ...
+         whole_conservations_reshaped{i}', conservation_ratios{i}', gc_reshaped{i}', ...
+         gc_whole_reshaped{i}', gc_ratio{i}', reshaped_indices{i}', ...
+         terminus_distance_one{i}', terminus_distance_two{i}',distance_ratio_one{i}', ...
+         distance_ratio_two{i}', distance_ratio_three{i}', folding_energies{i}', ...
+         tai_reshaped{i}', tai_whole_reshaped{i}', tai_ratio{i}'];
     
     [B, info] = lasso(X,y);
     
     coef = B(:,1);
     coef0 = info.Intercept(1);
-    lasso_model_ratios{i} = struct('coef', coef, 'coef0', coef0);
+    orf_model = struct('coef', coef, 'coef0', coef0);
     
     normalized_X = coef' * X';
-    y_pred = normalized_X' + coef0;
+    X_regularized = normalized_X' + coef0;
     
-    correlation = corr(y_pred, y) * 100;
+    correlation = corr(y, X_regularized) * 100;
     fprintf("\nPearson Lasso Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
+    correlation = corr(y, X_regularized, 'type', 'spearman') * 100;
     fprintf("\nSpearman Lasso Correlation: %.2f%%\n", correlation)
     
-    stepwise_model_ratios{i} = stepwiselm(X, y, 'linear');
-    y_pred = predict(stepwise_model_ratios{i}, X);
+    orf_model = stepwiselm(X, y, 'linear');
+    y_pred = predict(orf_model, X);
+    
     correlation = corr(y_pred, y) * 100;
     fprintf("\nPearson Step Wise Regression Correlation: %.2f%%\n", correlation)
     correlation = corr(y_pred, y, 'type', 'spearman') * 100;
     fprintf("\nSpearman Step Wise Regression Correlation: %.2f%%\n", correlation)
 
-    
-    m = regress(y, X);
-    y_pred = X*m;
-    correlation = corr(y_pred, y) * 100;
-    fprintf("\nPearson Simple Regression Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
-    fprintf("\nSpearman Simple Regression Correlation: %.2f%%\n", correlation)
-
 end
 
-save('regression_models/lasso_model_ratios.mat', 'lasso_model_ratios')
-save('regression_models/stepwise_model_ratios.mat', 'stepwise_model_ratios')
-%%
- clc
+save('regression_models/orf_model.mat', 'orf_model')
 
-disp('For ORF')
 
-for i = 2 %15, 17, , 18,, 16, 4, 12, 2, 3
-   
-    y = reshaped_repress{i}';
-    X = [cai_reshaped{i}', ...
-        conservation_ratios{i}', ...
-        gc_ratio{i}', ...
-        terminus_distance_one{i}',...
-        distance_ratio_two{i}', ...
-        tai_ratio{i}'];
-    
 
-    
-    [B, info] = lasso(X,y);
-    
-    coef = B(:,1);
-    coef0 = info.Intercept(1);
-    lasso_model{i} = struct('coef', coef, 'coef0', coef0);
-    
-    normalized_X = coef' * X';
-    y_pred = normalized_X' + coef0;
-    correlation = corr(y_pred, y) * 100;
-    fprintf("\nPearson Lasso Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
-    fprintf("\nSpearman Lasso Correlation: %.2f%%\n", correlation)
-    
-    stepwise_model{i} = stepwiselm(X, y, 'linear');
-    y_pred = predict(stepwise_model{i}, X);
-    correlation = corr(y_pred, y) * 100;
-    fprintf("\nPearson Step Wise Regression Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
-    fprintf("\nSpearman Step Wise Regression Correlation: %.2f%%\n", correlation)
-
-    
-    m = regress(y, X);
-    y_pred = X*m;
-    correlation = corr(y_pred, y) * 100;
-    fprintf("\nPearson Simple Regression Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
-    fprintf("\nSpearman Simple Regression Correlation: %.2f%%\n", correlation)
-
-end
-
-%%
+%% UTR3
 clc
+stepwise_model = cell(1);
+lasso_model = cell(1);
 
-disp('For UTR3')
-for i = 3  %15, 11, 19, 17, 3, 6, 
+for i = 3
    
     y = reshaped_repress{i}';
-    
-    
-      X = [cai_whole_reshaped{i}', ...
-        conservation{i}', ...
-        terminus_distance_two{i}',...
-        folding_energies{i}', ...
-        tai_whole_reshaped{i}'];
+   
+     X =     [cai_reshaped{i}', cai_whole_reshaped{i}', cai_ratio{i}', ...
+    conservation{i}', whole_conservations_reshaped{i}', conservation_ratios{i}', ...
+    gc_reshaped{i}', gc_whole_reshaped{i}', gc_ratio{i}', ...
+    reshaped_indices{i}', terminus_distance_one{i}', terminus_distance_two{i}',...
+    distance_ratio_one{i}', distance_ratio_two{i}', distance_ratio_three{i}', ...
+    folding_energies{i}', tai_reshaped{i}', tai_whole_reshaped{i}', tai_ratio{i}'];
     
     [B, info] = lasso(X,y);
     
     coef = B(:,1);
     coef0 = info.Intercept(1);
-    lasso_model{i} = struct('coef', coef, 'coef0', coef0);
+    utr3_model = struct('coef', coef, 'coef0', coef0);
     
     normalized_X = coef' * X';
     y_pred = normalized_X' + coef0;
+    
     correlation = corr(y_pred, y) * 100;
     fprintf("\nPearson Lasso Correlation: %.2f%%\n", correlation)
     correlation = corr(y_pred, y, 'type', 'spearman') * 100;
     fprintf("\nSpearman Lasso Correlation: %.2f%%\n", correlation)
     
-    stepwise_model{i} = stepwiselm(X, y, 'linear');
-    y_pred = predict(stepwise_model{i}, X);
+    utr3_model = stepwiselm(X, y, 'linear');
+    y_pred = predict(utr3_model, X);
+    
     correlation = corr(y_pred, y) * 100;
     fprintf("\nPearson Step Wise Regression Correlation: %.2f%%\n", correlation)
     correlation = corr(y_pred, y, 'type', 'spearman') * 100;
     fprintf("\nSpearman Step Wise Regression Correlation: %.2f%%\n", correlation)
 
-    
     m = regress(y, X);
     y_pred = X*m;
     correlation = corr(y_pred, y) * 100;
@@ -717,26 +617,4 @@ for i = 3  %15, 11, 19, 17, 3, 6,
 
 end
 
-%%
- X = [cai_whole_reshaped{i}', ...
-        conservation_ratios{i}', ...
-        gc_ratio{i}', ...
-        terminus_distance_two{i}',...
-        distance_ratio_one{i}', ...
-        folding_energies{i}', ...
-        tai_reshaped{i}'];
-    
-X = [cai_reshaped{i}', cai_whole_reshaped{i}', ...
-        conservation{i}', ...
-        gc_reshaped{i}',  ...
-        terminus_distance_two{i}',...
-        distance_ratio_two{i}', ...
-        folding_energies{i}', ...
-        tai_whole_reshaped{i}'];
-    
-X = [cai_reshaped{i}', ...
-        conservation_ratios{i}', ...
-        gc_ratio{i}', ...
-        terminus_distance_one{i}',...
-        distance_ratio_two{i}', ...
-        tai_ratio{i}'];
+save('regression_models/utr3_model.mat', 'utr3_model')

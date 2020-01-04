@@ -11,7 +11,9 @@ function reshaped_indices = binding_indices_validation(mirs_training, gene_train
 
     first_indices = zeros(length(mirs_training), size(gene_training, 1), 3); %74 rows, 3947 columns
     all_indices = zeros(length(mirs_training), size(gene_training, 1), 3); 
-        
+    count_one = 0;
+    count_two = 0;
+    count_three = 0;
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     mirna_seq = char(mirs_training(1, 1));          
@@ -41,7 +43,19 @@ function reshaped_indices = binding_indices_validation(mirs_training, gene_train
         first_indices(i, j, 1) = valid_combination_validation(temp_utr5, temp_orf, temp_utr3);
         first_indices(i, j, 2) = valid_combination_validation(temp_orf, temp_utr5, temp_utr3);
         first_indices(i, j, 3) = valid_combination_validation(temp_utr3, temp_utr5, temp_orf);
-            
+        
+        if ~isnan(first_indices(i, j, 1))
+            count_one = count_one + 1;
+            reconstruct_index{1}(count_one) = j;
+        end
+        if ~isnan(first_indices(i, j, 2))
+            count_two = count_two + 1;
+            reconstruct_index_two(count_two) = j;
+        end
+        if ~isnan(first_indices(i, j, 3))
+            count_three = count_three + 1;
+            reconstruct_index_three(count_three) = j;
+        end
             
     end
 
@@ -73,8 +87,9 @@ function reshaped_indices = binding_indices_validation(mirs_training, gene_train
     reshaped_indices{1, 3} = reshaped_indices_one;
 
     save(strcat(path, 'reshaped_indices.mat'), 'reshaped_indices');
-    
-    
+    save(strcat(path, 'reconstruct_index_two.mat'), 'reconstruct_index_two');
+    save(strcat(path, 'reconstruct_index_three.mat'), 'reconstruct_index_three');
+
    close(f)
 
 

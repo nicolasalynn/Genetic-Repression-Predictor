@@ -84,7 +84,6 @@ conservation_ratios{1, 3} = conservation{1, 3} ./ whole_conservations_reshaped{1
 
 save(strcat(path, 'conservation_ratios.mat'), 'conservation_ratios');
 
-
 %% Feature: Distance to terminus
 
 load(strcat(path, 'reshaped_indices.mat'));
@@ -207,7 +206,7 @@ save(strcat(path, 'gc_reshaped.mat'), 'gc_reshaped')
 save(strcat(path, 'gc_whole_reshaped.mat'), 'gc_whole_reshaped')
 save(strcat(path, 'gc_ratio.mat'), 'gc_ratio')
 
-%%
+%% RUN
 
 clear, clc
 
@@ -244,19 +243,13 @@ load('data_sets/validation_data/conservations.mat')
 load('data_sets/validation_data/conservation_ratios.mat')
 load('data_sets/validation_data/whole_conservations.mat')
 
-%%
-% Models
-load('regression_models/lasso_model.mat')
-load('regression_models/stepwise_model.mat')
-clearvars ans dim i index_data length_data method disatnce_cell_tot distance_cell_end
 
-lasso_y_pred = cell(1, 3);
-stepwise_y_pred = cell(1, 3);
 
-%%  MODEL With ALl Features
+%%  MODEL VALIDATION ORF
 
-for i = 1:3
+for i = 2
    
+load('regression_models/orf_model.mat')
 X =     [cai_reshaped{i}', cai_whole_reshaped{i}', cai_ratio{i}', ...
     conservation{i}', whole_conservations_reshaped{i}', conservation_ratios{i}', ...
     gc_reshaped{i}', gc_whole_reshaped{i}', gc_ratio{i}', ...
@@ -265,44 +258,43 @@ X =     [cai_reshaped{i}', cai_whole_reshaped{i}', cai_ratio{i}', ...
     folding_energies{i}', ...
     tai_reshaped{i}', tai_whole_reshaped{i}', tai_ratio{i}'];
     
-    coef = lasso_model{i}.coef;
-    coef0 = lasso_model{i}.coef0;
-    lasso_y_pred{i} = coef' * X' + coef0; 
-    
-    stepwise_y_pred{i} = predict(stepwise_model{i}, X); 
-    
-end
-
-save('validation_predictions/lasso_y_pred.mat', 'lasso_y_pred');
-save('validation_predictions/stepwise_y_pred.mat', 'stepwise_y_pred');
-
-%% Model with only ratios:
-
-
-load('regression_models/lasso_model_ratios.mat')
-load('regression_models/stepwise_model_ratios.mat')
-
-
-lasso_y_pred_ratios = cell(1, 3);
-stepwise_y_pred_ratios = cell(1, 3);
-
-for i = 1:3
-   
-X = [cai_ratio{i}', ...
-        conservation_ratios{i}', ...
-        gc_ratio{i}', ...
-        distance_ratio_one{i}', ...
-        tai_ratio{i}'];
-    
-    coef = lasso_model_ratios{i}.coef;
-    coef0 = lasso_model_ratios{i}.coef0;
-    lasso_y_pred_ratios{i} = coef' * X' + coef0; 
-    
-    stepwise_y_pred_ratios{i} = predict(stepwise_model_ratios{i}, X); 
-
+    % IF LASSO
+%     coef = orf_model.coef;
+%     coef0 = orf_model.coef0;
+%     lasso_y_pred = coef' * X' + coef0; 
+    % IF STEPWISE
+    validation_orf = predict(orf_model, X); 
     
 end
 
-save('validation_predictions/lasso_y_pred_ratios.mat', 'lasso_y_pred_ratios');
-save('validation_predictions/stepwise_y_pred_ratios.mat', 'stepwise_y_pred_ratios');
+load('data_sets/validation_data/reconstruct_index_two.mat')
+pred_orf = reconstruct_data(validation_orf, reconstruct_index_two);
+save('validation_predictions/pred_orf.mat', 'pred_orf');
 
+
+
+%% MODEL VALIDATION ORF
+
+
+load('regression_models/utr3_model.mat')
+i = 3;
+
+X =     [cai_reshaped{i}', cai_whole_reshaped{i}', cai_ratio{i}', ...
+    conservation{i}', whole_conservations_reshaped{i}', conservation_ratios{i}', ...
+    gc_reshaped{i}', gc_whole_reshaped{i}', gc_ratio{i}', ...
+    reshaped_indices{i}', terminus_distance_one{i}', terminus_distance_two{i}',...
+    distance_ratio_one{i}', distance_ratio_two{i}', distance_ratio_three{i}', ...
+    folding_energies{i}', ...
+    tai_reshaped{i}', tai_whole_reshaped{i}', tai_ratio{i}'];
+
+% 
+% coef = lasso_model{i}.coef;
+% coef0 = lasso_model{i}.coef0;
+% lasso_y_pred{i} = coef' * X' + coef0; 
+
+validation_utr3 = predict(utr3_model, X); 
+
+
+load('data_sets/validation_data/reconstruct_index_three.mat')
+pred_utr3 = reconstruct_data(validation_utr3, reconstruct_index_three);
+save('validation_predictions/pred_utr3.mat', 'pred_utr3');

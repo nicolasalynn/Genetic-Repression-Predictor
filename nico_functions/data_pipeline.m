@@ -1,4 +1,4 @@
-function [X, y_obs, y_pred, m, correlation] = data_pipeline(X_ugly, y_ugly)
+function m = data_pipeline(X_ugly, y_ugly)
 
     size_x = size(X_ugly);
     size_y = size(y_ugly);
