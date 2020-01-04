@@ -568,8 +568,6 @@ end
 
 save('regression_models/orf_model.mat', 'orf_model')
 
-
-
 %% UTR3
 clc
 stepwise_model = cell(1);

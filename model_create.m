@@ -24,7 +24,6 @@ mirs_validation(2,:) = values(miRs_validation.miRs);
 save(strcat(challenge_path, 'gene_validation_use.mat'), 'gene_validation');
 save(strcat(challenge_path, 'mirs_validation_use.mat'), 'mirs_validation');
 
-
 %% Find the first instance of miRNA mRNA binding for each combination (Nico)
 clear, clc
 
@@ -243,8 +242,6 @@ load('data_sets/validation_data/conservations.mat')
 load('data_sets/validation_data/conservation_ratios.mat')
 load('data_sets/validation_data/whole_conservations.mat')
 
-
-
 %%  MODEL VALIDATION ORF
 
 for i = 2
@@ -270,8 +267,6 @@ end
 load('data_sets/validation_data/reconstruct_index_two.mat')
 pred_orf = reconstruct_data(validation_orf, reconstruct_index_two);
 save('validation_predictions/pred_orf.mat', 'pred_orf');
-
-
 
 %% MODEL VALIDATION ORF
 
