@@ -22,11 +22,7 @@ function reshaped_indices = binding_indices_validation(mirs_training, gene_train
     i = 1;
     temp_orf = zeros(1, size(gene_training, 2));
     for j = 1:5805 
-%         str_of_orf = (string(orfs{1, j}))
-%         temp = regexp(str_of_orf, mer_site_8);
-%         temp2 = strfind(str_of_orf, mer_site_8);
-%         temp_orf(1, j) = length(temp);
-%     
+
         str_of_utr5 = (string(utr5{j})); 
         str_of_orf = (string(orfs{j})); 
         str_of_utr3 = (string(utr3{j}));
@@ -35,45 +31,17 @@ function reshaped_indices = binding_indices_validation(mirs_training, gene_train
         temp_orf = regexp(str_of_orf, mer_site_8);            %finding indices ineach segment 
         temp_utr3 = regexp(str_of_utr3, mer_site_8);
 
-
-
         all_indices(i, j, 1) = length(temp_utr5); 
         all_indices(i, j, 2) = length(temp_orf); 
         all_indices(i, j, 3) = length(temp_utr3);
 
         % first_index has a value 0 if there is no binding index, num %if there is a singe index and NaN if there are multiple % indices
 
-        if isempty(temp_utr5)
-            first_indices(i, j, 1) = 0;
-        elseif length(temp_utr5) > 1
-            first_indices(i, j, 1) = NaN;
-        elseif length(temp_utr5) == 1
-            first_indices(i, j, 1) = temp_utr5(1);
-        else
-            disp("Error!!!")
-        end
-
-
-        if isempty(temp_orf)
-            first_indices(i, j, 2) = 0;
-        elseif length(temp_orf) > 1
-            first_indices(i, j, 2) = NaN;
-        elseif length(temp_orf) == 1
-            first_indices(i, j, 2) = temp_orf(1);
-        else
-            disp("Error!")
-        end
-
-
-        if isempty(temp_utr3)
-            first_indices(i, j, 3) = 0;
-        elseif length(temp_utr3) > 1
-            first_indices(i, j, 3) = NaN;
-        elseif length(temp_utr3) == 1
-            first_indices(i, j, 3) = temp_utr3(1);
-        else
-            disp("Error!!!")
-        end
+        
+        first_indices(i, j, 1) = valid_combination_validation(temp_utr5, temp_orf, temp_utr3);
+        first_indices(i, j, 2) = valid_combination_validation(temp_orf, temp_utr5, temp_utr3);
+        first_indices(i, j, 3) = valid_combination_validation(temp_utr3, temp_utr5, temp_orf);
+            
             
     end
 

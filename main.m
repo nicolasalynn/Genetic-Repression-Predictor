@@ -525,10 +525,9 @@ load('data_sets/feature_data/tai_ratio.mat')
 % Conservation
 load('data_sets/feature_data/conservations.mat')
 load('data_sets/feature_data/conservation_ratios.mat')
-load('data_sets/feature_data/whole_conservations.mat')
-
+load('data_sets/feature_data/whole_conservations.mat')%%
 %%
-clc
+
 for i = 1
    
     y = reshaped_repress{i}';
@@ -569,7 +568,6 @@ for i = 1
     correlation = corr(y_pred, y, 'type', 'spearman') * 100;
     fprintf("\nSpearman Simple Regression Correlation: %.2f%%\n", correlation)
 
-      
 end
 
 save('regression_models/lasso_model.mat', 'lasso_model')
@@ -580,7 +578,9 @@ clc
 
 disp('For UTR5')
 
-for i = 1 
+stepwise_model_ratios = cell(1, 3);
+lasso_model_ratios = cell(1, 3);
+for i = 1:3 
    
     y = reshaped_repress{i}';
 
@@ -596,7 +596,7 @@ for i = 1
     
     coef = B(:,1);
     coef0 = info.Intercept(1);
-    lasso_model{i} = struct('coef', coef, 'coef0', coef0);
+    lasso_model_ratios{i} = struct('coef', coef, 'coef0', coef0);
     
     normalized_X = coef' * X';
     y_pred = normalized_X' + coef0;
@@ -606,8 +606,8 @@ for i = 1
     correlation = corr(y_pred, y, 'type', 'spearman') * 100;
     fprintf("\nSpearman Lasso Correlation: %.2f%%\n", correlation)
     
-    stepwise_model{i} = stepwiselm(X, y, 'linear');
-    y_pred = predict(stepwise_model{i}, X);
+    stepwise_model_ratios{i} = stepwiselm(X, y, 'linear');
+    y_pred = predict(stepwise_model_ratios{i}, X);
     correlation = corr(y_pred, y) * 100;
     fprintf("\nPearson Step Wise Regression Correlation: %.2f%%\n", correlation)
     correlation = corr(y_pred, y, 'type', 'spearman') * 100;
@@ -622,6 +622,9 @@ for i = 1
     fprintf("\nSpearman Simple Regression Correlation: %.2f%%\n", correlation)
 
 end
+
+save('regression_models/lasso_model_ratios.mat', 'lasso_model_ratios')
+save('regression_models/stepwise_model_ratios.mat', 'stepwise_model_ratios')
 %%
  clc
 
@@ -636,6 +639,8 @@ for i = 2 %15, 17, , 18,, 16, 4, 12, 2, 3
         terminus_distance_one{i}',...
         distance_ratio_two{i}', ...
         tai_ratio{i}'];
+    
+
     
     [B, info] = lasso(X,y);
     
@@ -674,7 +679,9 @@ disp('For UTR3')
 for i = 3  %15, 11, 19, 17, 3, 6, 
    
     y = reshaped_repress{i}';
-     X = [cai_whole_reshaped{i}', ...
+    
+    
+      X = [cai_whole_reshaped{i}', ...
         conservation{i}', ...
         terminus_distance_two{i}',...
         folding_energies{i}', ...

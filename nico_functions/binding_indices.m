@@ -25,12 +25,15 @@ function binding_indices(mirs_training, gene_training, repress, path)
     for i = 1:length(mirs_training)                 
         
         waitbar(i/length(mirs_training), f, "Looping through miRNAs...")
+       
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         mirna_seq = char(mirs_training(1, i));          
         seed = mirna_seq(2:8);                          
         mer_site_7 = seqrcomplement(seed);              
         mer_site_8 = strcat(mer_site_7,'A');            
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        
         for j = 1:size(gene_training, 1)            % j = 1:3947
             
             str_of_utr5 = dna2rna(string(utr5{j}));
@@ -45,12 +48,12 @@ function binding_indices(mirs_training, gene_training, repress, path)
             all_indices(i, j, 1) = length(temp_utr5);
             all_indices(i, j, 2) = length(temp_orf);
             all_indices(i, j, 3) = length(temp_utr3);
-            
- 
+
             [first_indices(i, j, 1), valid_repress(i, j, 1)] = valid_combination(temp_utr5, temp_orf, temp_utr3, repress(i, j));
             [first_indices(i, j, 2), valid_repress(i, j, 2)] = valid_combination(temp_orf, temp_utr5, temp_utr3, repress(i, j));
             [first_indices(i, j, 3), valid_repress(i, j, 3)] = valid_combination(temp_utr3, temp_utr5, temp_orf, repress(i, j));
-
+           
+        
         end
 
     end

@@ -36,16 +36,17 @@ run_initiation = input("Do you want to recalculate the miRNA-mRNA binding "  +  
 "indices? This action will take approximatelly 2 minutes... \n([Y] = 1, [N] = 0):  ");
 
 mirs_validation = mirs_validation(2, :);
+fake_repress = ones(1, size(gene_validation, 1));
+
 
 if run_initiation 
     fprintf("\nThis will take a minute...\n\n");
-    fake_repression = array2table(ones(size(gene_validation, 1), 2));
     temp = binding_indices_validation(mirs_validation, gene_validation, 'data_sets/validation_data/');
 
 end
 clearvars run_initiation
 
-%%
+%% WIndows
 
 clear, clc
 
@@ -54,126 +55,254 @@ load('data_sets/validation_data/gene_validation_use.mat')
 
 get_gene_windows(gene_validation,true_indices, 'validation_windows', 74, "validation");
 
-%%
-clear, clc
-load('data_sets/validation_data/reshaped_validation_windows.mat')
+%% Feature: Thermodynamics
+path = 'data_sets/validation_data/';
+path2 = 'data_sets/challenge_data/';
 
-find_folding_energies(windows_reshaped, "validation");
+load(strcat(path, "reshaped_validation_windows.mat"))
+
+calc_folding_e = input("\nWould you like to calculate folding " + ...
+    "energies?\nThis will take a few minutes..\n [Y]:1, [N]:0\n>>");
+if calc_folding_e == 1
+    
+    %tic
+    dim = 0; % change this value depending of sequence region target
+    folding_energies = find_folding_energies(windows_reshaped, "validation");
+    %fold_energy_time = toc;  
+end
+clearvars calc_folding_e
  
-%%
+%% Feature: Conservation
 
-clear, clc
+load(strcat(path, 'conservations.mat'));
+load(strcat(path, 'whole_conservations.mat'));
 
-reshaped_indices = load('data_sets/validation_data/reshaped_indices.mat');
-regression_lengths = load('data_sets/validation_data/total_lengths.mat');
+conservation_ratios = cell(1, 3);
+conservation_ratios{1, 1} = conservation{1, 1} ./ whole_conservations_reshaped{1, 1};
+conservation_ratios{1, 2} = conservation{1, 2} ./ whole_conservations_reshaped{1, 2};
+conservation_ratios{1, 3} = conservation{1, 3} ./ whole_conservations_reshaped{1, 3};
 
-[terminus_distance_one, terminus_distance_two] = ...
-    distance_edge(reshaped_indices.reshaped_indices, regression_lengths.lengths_reshaped, "validation");
+save(strcat(path, 'conservation_ratios.mat'), 'conservation_ratios');
 
-save('data_sets/validation_data/terminus_distance_one.mat', 'terminus_distance_one')
-save('data_sets/validation_data/terminus_distance_two.mat', 'terminus_distance_two')
-%%
 
-clear, clc
+%% Feature: Distance to terminus
 
-clear, clc
-load('data_sets/validation_data/reshaped_validation_windows.mat');
-load('data_sets/challenge_data/codon_CAI.mat')
+load(strcat(path, 'reshaped_indices.mat'));
+load(strcat(path, 'total_lengths.mat'));
+
+[terminus_distance_one, terminus_distance_two] = distance_edge(reshaped_indices, lengths_reshaped, "training");
+
+distance_ratio_one = cell(1, 3);
+distance_ratio_two = cell(1, 3);
+distance_ratio_three = cell(1, 3);
+
+for i = 1:3
+    distance_ratio_three{1, i} = reshaped_indices{1, i}./ lengths_reshaped{1, i};
+    distance_ratio_one{1, i} = terminus_distance_one{1, i}./lengths_reshaped{1, i};
+    distance_ratio_two{1, i} = terminus_distance_two{1, i}./lengths_reshaped{1, i};
+end
+
+clearvars i ans titles
+save(strcat(path, 'terminus_distance_one.mat'), 'terminus_distance_one')
+save(strcat(path, 'terminus_distance_two.mat'), 'terminus_distance_two')
+save(strcat(path, 'distance_ratio_one.mat'), 'distance_ratio_one')
+save(strcat(path, 'distance_ratio_two.mat'), 'distance_ratio_two')
+save(strcat(path, 'distance_ratio_three.mat'), 'distance_ratio_three')
+
+%% Feature: CAI 
+
+load(strcat(path, 'reshaped_validation_windows.mat'));
+load(strcat(path2, 'codon_CAI.mat'));
+load(strcat(path, 'whole_sequence.mat'));
+
+cai_reshaped = cell(1, 3);
+cai_whole_reshaped = cell(1,3);
+
+Sequences_ORF = windows_reshaped{1,2};
+Sequence_ORF_whole = whole_reshaped{1, 2};
+cai_reshaped{1,2} = CAI_generator(Sequences_ORF,codon_CAI);
+cai_whole_reshaped{1, 2} = CAI_generator(Sequence_ORF_whole, codon_CAI);
+cai_ratio{1, 2} = cai_reshaped{1, 2}./cai_whole_reshaped{1, 2};
+
+Sequences_UTR5 = windows_reshaped{1,1};
+Sequence_UTR5_whole = whole_reshaped{1, 1};
+cai_reshaped{1, 1} = CAI_generator(Sequences_UTR5,codon_CAI);
+cai_whole_reshaped{1, 1} = CAI_generator(Sequence_UTR5_whole, codon_CAI);
+cai_ratio{1, 1} = cai_reshaped{1, 1}./cai_whole_reshaped{1, 1};
+
+Sequences_UTR3 = windows_reshaped{1,3};
+Sequence_UTR3_whole = whole_reshaped{1, 3};
+cai_reshaped{1, 3} = CAI_generator(Sequences_UTR3,codon_CAI);
+cai_whole_reshaped{1, 3} = CAI_generator(Sequence_UTR3_whole, codon_CAI);
+cai_ratio{1, 3} = cai_reshaped{1, 3}./cai_whole_reshaped{1, 3};
+
+clearvars ans CAI_ORF CAI_UTR3 CAI_UTR5 Sequences_ORF Sequences_UTR3 Sequences_UTR5 titles windows_reshaped i codon_CAI 
+save(strcat(path, 'cai_reshaped.mat'), 'cai_reshaped')
+save(strcat(path, 'cai_whole_reshaped.mat'), 'cai_whole_reshaped')
+save(strcat(path, 'cai_ratio.mat'), 'cai_ratio')
+
+%% Feature: tAI 
+
+
+load(strcat(path, 'reshaped_validation_windows.mat'));
+load(strcat(path2, 'codon_tAI.mat'));
+load(strcat(path, 'whole_sequence.mat'));
+
+tai_reshaped = cell(1, 3);
+tai_whole_reshaped = cell(1,3);
+
+Sequences_ORF = windows_reshaped{1,2};
+Sequence_ORF_whole = whole_reshaped{1, 2};
+tai_reshaped{1,2} = CAI_generator(Sequences_ORF,codon_tAI);
+tai_whole_reshaped{1, 2} = CAI_generator(Sequence_ORF_whole, codon_tAI);
+tai_ratio{1, 2} = tai_reshaped{1, 2}./tai_whole_reshaped{1, 2};
+
+Sequences_UTR5 = windows_reshaped{1,1};
+Sequence_UTR5_whole = whole_reshaped{1, 1};
+tai_reshaped{1, 1} = CAI_generator(Sequences_UTR5,codon_tAI);
+tai_whole_reshaped{1, 1} = CAI_generator(Sequence_UTR5_whole, codon_tAI);
+tai_ratio{1, 1} = tai_reshaped{1, 1}./tai_whole_reshaped{1, 1};
+
+Sequences_UTR3 = windows_reshaped{1,3};
+Sequence_UTR3_whole = whole_reshaped{1, 3};
+tai_reshaped{1, 3} = CAI_generator(Sequences_UTR3,codon_tAI);
+tai_whole_reshaped{1, 3} = CAI_generator(Sequence_UTR3_whole, codon_tAI);
+tai_ratio{1, 3} = tai_reshaped{1, 3}./tai_whole_reshaped{1, 3};
+
+
+
+clearvars ans tAI_ORF tAI_UTR3 tAI_UTR5 Sequences_ORF Sequences_UTR3 Sequences_UTR5 titles windows_reshaped i codon_tAI 
+save(strcat(path, 'tai_reshaped.mat'), 'tai_reshaped');
+save(strcat(path, 'tai_whole_reshaped.mat'), 'tai_whole_reshaped');
+save(strcat(path, 'tai_ratio.mat'), 'tai_ratio');
+
+%% GC content (Michal)
+
+load(strcat(path, 'reshaped_validation_windows.mat'));
+load(strcat(path, 'whole_sequence.mat'));
+
+
+gc_reshaped = cell(1, 3);
+gc_whole_reshaped = cell(1, 3);
+gc_ratio = cell(1, 3);
 
 %reshaped_nt_windows.mat is windows_reshaped
 Sequences_ORF = windows_reshaped{1,2};
-CAI_ORF = CAI_generator(Sequences_ORF,codon_CAI);
-Sequences_UTR5 = windows_reshaped{1,1};
-CAI_UTR5 = CAI_generator(Sequences_UTR5,codon_CAI);
-Sequences_UTR3 = windows_reshaped{1,3};
-CAI_UTR3 = CAI_generator(Sequences_UTR3,codon_CAI);
+gc_reshaped{1, 2} = GC_content_generator(Sequences_ORF);
+gc_whole_reshaped{1, 2} = GC_content_generator(whole_reshaped{1,2});
+gc_ratio{1, 2} = gc_reshaped{1, 2} ./ gc_whole_reshaped{1, 2};
 
-cai_reshaped = cell(1, 3);
-cai_reshaped{1, 1} = CAI_UTR5;
-cai_reshaped{1, 2} = CAI_ORF;
-cai_reshaped{1,3} = CAI_UTR3;
+Sequences_UTR5 = windows_reshaped{1,1};
+gc_reshaped{1, 1} = GC_content_generator(Sequences_UTR5);
+gc_whole_reshaped{1, 1} = GC_content_generator(whole_reshaped{1,1});
+gc_ratio{1, 1} = gc_reshaped{1, 1} ./ gc_whole_reshaped{1, 1};
+
+Sequences_UTR3 = windows_reshaped{1,3};
+gc_reshaped{1, 3} = GC_content_generator(Sequences_UTR3);
+gc_whole_reshaped{1, 3} = GC_content_generator(whole_reshaped{1,3});
+gc_ratio{1, 3} = gc_reshaped{1, 3} ./ gc_whole_reshaped{1, 3};
 
 clearvars ans CAI_ORF CAI_UTR3 CAI_UTR5 Sequences_ORF Sequences_UTR3 Sequences_UTR5 titles windows_reshaped i codon_CAI 
-save('data_sets/validation_data/cai_reshaped.mat', 'cai_reshaped')
+save(strcat(path, 'gc_reshaped.mat'), 'gc_reshaped')
+save(strcat(path, 'gc_whole_reshaped.mat'), 'gc_whole_reshaped')
+save(strcat(path, 'gc_ratio.mat'), 'gc_ratio')
 
 %%
 
 clear, clc
 
-load('data_sets/validation_data/reshaped_validation_windows.mat');
-Sequences_ORF = windows_reshaped{1,2};
-GC_content_ORF = GC_content_generator(Sequences_ORF);
-Sequences_UTR5 = windows_reshaped{1,1};
-GC_content_UTR5 = GC_content_generator(Sequences_UTR5);
-Sequences_UTR3 = windows_reshaped{1,3};
-GC_content_UTR3 = GC_content_generator(Sequences_UTR3);
 
-gc_reshaped = cell(1, 3);
-gc_reshaped{1, 1} = GC_content_UTR5;
-gc_reshaped{1, 2} = GC_content_ORF;
-gc_reshaped{1,3} = GC_content_UTR3;
-
-clearvars ans CAI_ORF CAI_UTR3 CAI_UTR5 Sequences_ORF Sequences_UTR3 Sequences_UTR5 titles windows_reshaped i codon_CAI 
-save('data_sets/validation_data/gc_reshaped.mat', 'gc_reshaped')
-
-
-%%
-clear, clc
-
-load('data_sets/validation_data/whole_sequence.mat')
-
-regression_lengths = cell(1, 3);
-for i = 1:3
-    seqs = whole_reshaped{i};
-    lengths = zeros(1, length(seqs));
-    for j = 1:length(seqs)
-        lengths(j) = strlength(seqs(j));
-    end
-    regression_lengths{i} = lengths;
-end
-save('data_sets/validation_data/regression_lengths.mat', 'regression_lengths')
-
-
-%%
-
-clear, clc
-
-load('data_sets/validation_data/conservations.mat')
-load('data_sets/validation_data/folding_energies.mat')
-load('data_sets/validation_data/lengths_from_end.mat')
-load('data_sets/validation_data/lengths_from_either.mat')
+% CAI Scores
 load('data_sets/validation_data/cai_reshaped.mat')
-load('data_sets/validation_data/regression_lengths.mat')
+load('data_sets/validation_data/cai_whole_reshaped.mat')
+load('data_sets/validation_data/cai_ratio.mat')
+
+% GC content
 load('data_sets/validation_data/gc_reshaped.mat')
+load('data_sets/validation_data/gc_whole_reshaped.mat')
+load('data_sets/validation_data/gc_ratio.mat')
+
+% Terminus distances
 load('data_sets/validation_data/terminus_distance_one.mat')
 load('data_sets/validation_data/terminus_distance_two.mat')
-load('regression_models/lasso_model.mat')
+load('data_sets/validation_data/distance_ratio_one.mat')
+load('data_sets/validation_data/distance_ratio_two.mat')
+load('data_sets/validation_data/distance_ratio_three.mat')
+load('data_sets/validation_data/total_lengths.mat')
+load('data_sets/validation_data/reshaped_indices.mat')
 
+% Energies
+load('data_sets/validation_data/folding_energies.mat')
+
+%   tAI
+load('data_sets/validation_data/tai_reshaped.mat')
+load('data_sets/validation_data/tai_whole_reshaped.mat')
+load('data_sets/validation_data/tai_ratio.mat')
+
+% Conservation
+load('data_sets/validation_data/conservations.mat')
+load('data_sets/validation_data/conservation_ratios.mat')
+load('data_sets/validation_data/whole_conservations.mat')
+
+%%
+% Models
+load('regression_models/lasso_model.mat')
+load('regression_models/stepwise_model.mat')
 clearvars ans dim i index_data length_data method disatnce_cell_tot distance_cell_end
 
 lasso_y_pred = cell(1, 3);
+stepwise_y_pred = cell(1, 3);
 
-%% LASSO MODEL
+%%  MODEL With ALl Features
 
 for i = 1:3
    
-    X = [cai_reshaped{i}', conservation{i}', gc_reshaped{i}',reshaped_indices{i}', terminus_distance_one{i}', folding_energies{i}'];
-    coef = lasso_model{i}.coef
-    coef0 = lasso_model{i}.coef0
-    lasso_y_pred{i} = coef' * X' + coef0;  
-    stepwise
+X =     [cai_reshaped{i}', cai_whole_reshaped{i}', cai_ratio{i}', ...
+    conservation{i}', whole_conservations_reshaped{i}', conservation_ratios{i}', ...
+    gc_reshaped{i}', gc_whole_reshaped{i}', gc_ratio{i}', ...
+    reshaped_indices{i}', terminus_distance_one{i}', terminus_distance_two{i}',...
+    distance_ratio_one{i}', distance_ratio_two{i}', distance_ratio_three{i}', ...
+    folding_energies{i}', ...
+    tai_reshaped{i}', tai_whole_reshaped{i}', tai_ratio{i}'];
+    
+    coef = lasso_model{i}.coef;
+    coef0 = lasso_model{i}.coef0;
+    lasso_y_pred{i} = coef' * X' + coef0; 
+    
+    stepwise_y_pred{i} = predict(stepwise_model{i}, X); 
     
 end
 
 save('validation_predictions/lasso_y_pred.mat', 'lasso_y_pred');
+save('validation_predictions/stepwise_y_pred.mat', 'stepwise_y_pred');
+
+%% Model with only ratios:
 
 
-%%
+load('regression_models/lasso_model_ratios.mat')
+load('regression_models/stepwise_model_ratios.mat')
 
 
+lasso_y_pred_ratios = cell(1, 3);
+stepwise_y_pred_ratios = cell(1, 3);
 
+for i = 1:3
+   
+X = [cai_ratio{i}', ...
+        conservation_ratios{i}', ...
+        gc_ratio{i}', ...
+        distance_ratio_one{i}', ...
+        tai_ratio{i}'];
+    
+    coef = lasso_model_ratios{i}.coef;
+    coef0 = lasso_model_ratios{i}.coef0;
+    lasso_y_pred_ratios{i} = coef' * X' + coef0; 
+    
+    stepwise_y_pred_ratios{i} = predict(stepwise_model_ratios{i}, X); 
 
+    
+end
 
-
-
+save('validation_predictions/lasso_y_pred_ratios.mat', 'lasso_y_pred_ratios');
+save('validation_predictions/stepwise_y_pred_ratios.mat', 'stepwise_y_pred_ratios');
 
