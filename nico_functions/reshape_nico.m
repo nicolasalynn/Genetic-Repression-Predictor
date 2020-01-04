@@ -10,8 +10,6 @@ function reshaped_vector = reshape_nico(some_matrix, types)
 
         for i = 1:size_matrix(3)
             count = 0;
-            
-
             if types == "num"                
                 elements = sum(sum(~isnan(some_matrix(:,:,i))));
                 new_matrix = zeros(1, elements);

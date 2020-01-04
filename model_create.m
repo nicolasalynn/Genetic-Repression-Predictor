@@ -100,6 +100,27 @@ save('data_sets/validation_data/cai_reshaped.mat', 'cai_reshaped')
 
 clear, clc
 
+
+load('data_sets/validation_data/reshaped_validation_windows.mat');
+load('data_sets/challenge_data/codon_tAI.mat')
+
+Sequences_ORF = windows_reshaped{1,2};
+tAI_ORF = CAI_generator(Sequences_ORF,codon_tAI);
+Sequences_UTR5 = windows_reshaped{1,1};
+tAI_UTR5 = CAI_generator(Sequences_UTR5,codon_tAI);
+Sequences_UTR3 = windows_reshaped{1,3};
+tAI_UTR3 = CAI_generator(Sequences_UTR3,codon_tAI);
+   
+tai_reshaped = cell(1, 3);
+tai_reshaped{1, 1} = tAI_UTR5;
+tai_reshaped{1, 2} = tAI_ORF;
+tai_reshaped{1,3} = tAI_UTR3;
+save('data_sets/validation_data/tai_reshaped.mat', 'tai_reshaped')
+
+%%
+
+clear, clc
+
 load('data_sets/validation_data/reshaped_validation_windows.mat');
 Sequences_ORF = windows_reshaped{1,2};
 GC_content_ORF = GC_content_generator(Sequences_ORF);
@@ -143,6 +164,7 @@ load('data_sets/validation_data/folding_energies.mat')
 load('data_sets/validation_data/lengths_from_end.mat')
 load('data_sets/validation_data/lengths_from_either.mat')
 load('data_sets/validation_data/cai_reshaped.mat')
+load('data_sets/validation_data/tai_reshaped.mat')
 load('data_sets/validation_data/regression_lengths.mat')
 load('data_sets/validation_data/gc_reshaped.mat')
 load('data_sets/validation_data/terminus_distance_one.mat')
@@ -157,7 +179,7 @@ lasso_y_pred = cell(1, 3);
 
 for i = 1:3
    
-    X = [cai_reshaped{i}', conservation{i}', gc_reshaped{i}',reshaped_indices{i}', terminus_distance_one{i}', folding_energies{i}'];
+    X = [cai_reshaped{i}', conservation{i}', gc_reshaped{i}',reshaped_indices{i}', terminus_distance_one{i}', folding_energies{i}', tai_reshaped{i}'];
     coef = lasso_model{i}.coef;
     coef0 = lasso_model{i}.coef0;
     lasso_y_pred{i} = coef' * X' + coef0;  

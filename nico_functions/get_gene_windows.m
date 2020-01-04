@@ -15,12 +15,15 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
         file_name_3 = strcat('data_sets/feature_data/total_lengths.mat');
         file_name_4 = strcat('data_sets/feature_data/whole_sequence.mat');
         file_name_5 = 'data_sets/feature_data/conservations.mat';
+        file_name_6 = 'data_sets/feature_data/whole_conservations.mat';
     elseif method == "validation"
         file_name_1 = strcat('data_sets/validation_data/', char(file_save_name), '.mat');
         file_name_2 = strcat('data_sets/validation_data/reshaped_', char(file_save_name), '.mat');
         file_name_3 = strcat('data_sets/validation_data/total_lengths.mat');
         file_name_4 = strcat('data_sets/validation_data/whole_sequence.mat');
         file_name_5 = 'data_sets/validation_data/conservations.mat';
+        file_name_6 = 'data_sets/validation_data/whole_conservations.mat';
+
     end
         
         
@@ -35,7 +38,8 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
     total_lengths = zeros(num_mirnas, num_genes, dim);
     whole_sequence = strings(num_mirnas, num_genes, dim);
     average_conservation = zeros(num_mirnas, num_genes, dim);
-
+    whole_conservation = zeros(num_mirnas, num_genes, dim);
+    
         for gene = 1:num_genes
             waitbar(gene/num_genes, f, "Looping through indices...")
 
@@ -46,7 +50,8 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
 
 
             for mirna = 1:num_mirnas
-
+                
+                
                 index_val_utr5 = indices(mirna, gene, 1);
                 index_val_orf = indices(mirna, gene, 2);
                 index_val_utr3 = indices(mirna, gene, 3); 
@@ -60,8 +65,9 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                 if (index_val_utr5 ~= 0)
                     total_lengths(mirna, gene, 1) = strlength(utr5);
                     whole_sequence(mirna, gene, 1) = utr5;
-                    
-                    if strlength(utr5) < window
+                    whole_conservation(mirna, gene, 1) = mean(conservation_vector);
+
+                    if strlength(utr5) <= window
                         true_nt_windows(mirna, gene, 1) = utr5;
                         average_conservation(mirna, gene, 1) = mean(conservation_vector(1:utr5_length));
                     elseif (index_val_utr5 <= window/2)
@@ -85,8 +91,9 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                 if (index_val_orf ~= 0)
                     total_lengths(mirna, gene, 2) = strlength(orf);
                     whole_sequence(mirna, gene, 2) = orf;
+                    whole_conservation(mirna, gene, 2) = mean(conservation_vector);
 
-                    if strlength(orf) < window
+                    if strlength(orf) <= window
                         true_nt_windows(mirna, gene, 2) = orf;
                         average_conservation(mirna, gene, 2) = mean(conservation_vector(utr5_length:utr5_length + orf_length));
                     elseif (index_val_orf <= window/2)
@@ -110,8 +117,9 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                 if (index_val_utr3~= 0)
                     total_lengths(mirna, gene, 3) = strlength(utr3);
                     whole_sequence(mirna, gene, 3) = utr3;
+                    whole_conservation(mirna, gene, 3) = mean(conservation_vector);
 
-                    if strlength(utr3) < window
+                    if strlength(utr3) <= window
                         true_nt_windows(mirna, gene, 3) = utr3;
                         average_conservation(mirna, gene, 3) = mean(conservation_vector(utr5_length + orf_length:utr5_length + orf_length + utr3_length));
                     elseif (index_val_utr3 <= window/2)
@@ -135,7 +143,8 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
             end
         end
     
-    
+    whole_conservation(whole_conservation == 0) = NaN;
+    whole_conservations_reshaped = reshape_nico(whole_conservation, "num");
     windows_reshaped = reshape_nico(true_nt_windows, "str");
     total_lengths(total_lengths == 0) = NaN;
     lengths_reshaped = reshape_nico(total_lengths, "num");
@@ -147,11 +156,12 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
     clear binding_indices
     
     
-    save(file_name_1, 'true_nt_windows')
+    %save(file_name_1, 'true_nt_windows')
     save(file_name_2, 'windows_reshaped')
     save(file_name_3, 'lengths_reshaped')
     save(file_name_4, 'whole_reshaped')
     save(file_name_5, 'conservation');
+    save(file_name_6, 'whole_conservations_reshaped')
     
     close(f)
 
