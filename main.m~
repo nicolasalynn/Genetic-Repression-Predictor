@@ -112,8 +112,7 @@ clearvars run_windows
 addpath nico_functions
 addpath lotem_functions
 addpath michal_functions
-challenge_path = 'data_sets/challenge_data/';
-begin = input("Training(1) or Validing(2)\n");
+begin = input("Training(1) or Validing(2)\n")
 if begin == 1
     method = "training";
 elseif begin == 2
@@ -400,7 +399,7 @@ end
 
 save(strcat(path, 'codon_counts_orf.mat'), 'codon_counts_orfs');
 
-%% GC content 
+%% GC content (Michal)
 
 clc
 
@@ -452,12 +451,16 @@ save(strcat(path, 'gc_orf.mat'), 'gc_orf')
 save(strcat(path, 'gc_utr3.mat'), 'gc_utr3')
 save(strcat(path, 'gc_utr5.mat'), 'gc_utr5')
 
-%% MODELLING STEP
+%% MODELS!!!!!!!!!
+%{
+    It can be seen that the features with the best data are 
+
+%}
 
 type = input("training (1) or validation?(2)\n");
 if type == 1
     method = "training";
-elseif type == 2
+elseif type == 3
     method = "validation";
 end
 
@@ -597,7 +600,7 @@ elseif method == "validation"
 
     coef = orf_model.coef;
     coef0 = orf_model.coef0;
-    validation_orf = coef' * X' + coef0; 
+    lasso_y_pred = coef' * X' + coef0; 
  
     load('data_sets/validation_data/reconstruct_index_two.mat')
     pred_orf = reconstruct_data(validation_orf, reconstruct_index_two);
@@ -615,15 +618,14 @@ elseif method == "validation"
          gc_utr3{i}', gc_utr5{i}', lengths_reshaped{i}',...
          reshaped_mer7{i}', reshaped_indices{i}', ...
          tai_reshaped{i}', terminus_distance_one{i}', terminus_distance_two{i}', whole_conservations_reshaped{i}'];
-   
-     X = X_all;
-     
-    coef = utr3_model.coef;
-    coef0 = utr3_model.coef0;
-    validation_orf = coef' * X' + coef0; 
+    X = X_all;
+    
+    coef = lasso_model{i}.coef;
+    coef0 = lasso_model{i}.coef0;
+    lasso_y_pred{i} = coef' * X' + coef0; 
     
     load('data_sets/validation_data/reconstruct_index_three.mat')
-    pred_utr3 = reconstruct_data(validation_utr3{1, 3}, reconstruct_index_three);
+    pred_utr3 = reconstruct_data(validation_utr3, reconstruct_index_three);
     save('validation_predictions/pred_utr3.mat', 'pred_utr3');
 
 end
@@ -651,30 +653,28 @@ end
 % save(strcat(path, 'mir_length.mat', 'mir_length'))
 % save(strcat(path, 'mean_repress_miRNA.mat', 'mean_repress_miRNA'));
 % 
-
-%% Feature: Length of ORF and repression 
-
-clear, clc
- 
-load('data_sets/challenge_data/repress_use.mat')
-load('data_sets/challenge_data/gene_training_use.mat')
-
-mean_repress_gene = nanmean(repress_use);
-sequences = table2array(gene_training(:, 2:4))';
-
-seq_lengths = zeros(size(sequences));
-titles = ["UTR5", "ORF", "UTR3"];
-
-fprintf("\nFeature: Gene Length vs Average Repression Across all miRNAs")
-for i = 1:size(seq_lengths, 1)
-    for j = 1:size(seq_lengths, 2)
-        seq_lengths(i, j) = strlength(sequences(i, j));
-    end
-    fprintf("\nCurrent Sequence Type: %s", titles(i))
-    m_average_length{i} = data_pipeline(seq_lengths(i, :), mean_repress_gene);
-end
-
-save('data_sets/feature_data/seq_lengths.mat', 'seq_lengths')
-save('data_sets/feature_data/mean_repress_gene.mat', 'mean_repress_gene')
-save('regression_models/m_average_length.mat', 'm_average_length')
-clearvars gene_training i j
+% %% Feature: Length of ORF and repression 
+% clear, clc
+%  
+% load('data_sets/challenge_data/repress_use.mat')
+% load('data_sets/challenge_data/gene_training_use.mat')
+% 
+% mean_repress_gene = nanmean(repress_use);
+% sequences = table2array(gene_training(:, 2:4))';
+% 
+% seq_lengths = zeros(size(sequences));
+% titles = ["UTR5", "ORF", "UTR3"];
+% 
+% fprintf("\nFeature: Gene Length vs Average Repression Across all miRNAs")
+% for i = 1:size(seq_lengths, 1)
+%     for j = 1:size(seq_lengths, 2)
+%         seq_lengths(i, j) = strlength(sequences(i, j));
+%     end
+%     fprintf("\nCurrent Sequence Type: %s", titles(i))
+%     m_average_length{i} = data_pipeline(seq_lengths(i, :), mean_repress_gene);
+% end
+% 
+% save('data_sets/feature_data/seq_lengths.mat', 'seq_lengths')
+% save('data_sets/feature_data/mean_repress_gene.mat', 'mean_repress_gene')
+% save('regression_models/m_average_length.mat', 'm_average_length')
+% clearvars gene_training i j

@@ -18,7 +18,7 @@ function folding_energies = find_folding_energies(nt_windows, method)
                 waitbar(i/length(nt_windows{1, dimension}), f, wait_message);
                 
                 sequence = char(nt_windows{1, dimension}(1, i));
-                [~, temp_matrix(1, i), ~] = rnafold(sequence);
+                [~, temp_matrix(1, i), ~] = rnafold(dna2rna(sequence));
                 
                 
             end
