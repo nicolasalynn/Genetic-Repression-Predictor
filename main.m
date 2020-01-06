@@ -457,12 +457,14 @@ save(strcat(path, 'gc_utr5.mat'), 'gc_utr5')
 type = input("training (1) or validation?(2)\n");
 if type == 1
     method = "training";
+    path = 'data_sets/feature_data/';
 elseif type == 2
     method = "validation";
+    path = 'data_sets/validation_data/';
 end
 
 clc
-path = 'data_sets/feature_data/';
+
 
 
 % Repression
@@ -510,76 +512,95 @@ load(strcat(path, 'cutr5_lengths.mat'))
 load(strcat(path, 'cutr3_lengths.mat'))
 load(strcat(path, 'corf_lengths.mat'))
 
+X_all = cell(1, 3);
+X_recommended = cell(1,3);
+y = cell(1, 3);
+
+for i = 2:3
+    
+    X_all{i} = [codon_counts_orfs{i}', codon_counts{i}', cai_reshaped{i}', conservation{i}', ...
+         conservation_ratios{i}', corf_lengths{i}', ...
+         cutr3_lengths{i}', cutr5_lengths{i}', ...
+         distance_ratio_one{i}', distance_ratio_three{i}', ...
+         distance_ratio_two{i}', folding_energies{i}', gc_orf{i}', ...
+         gc_utr3{i}', gc_utr5{i}', lengths_reshaped{i}',...
+         reshaped_mer7{i}', reshaped_indices{i}', ...
+         tai_reshaped{i}', terminus_distance_one{i}', terminus_distance_two{i}', ...
+         whole_conservations_reshaped{i}'];
+     
+    X_recommended{i} = [folding_energies{i}', corf_lengths{i}', cutr3_lengths{i}',...
+        cutr5_lengths{i}', conservation{i}', gc_utr5{i}', gc_orf{i}', gc_utr3{i}',...
+        reshaped_mer7{i}', terminus_distance_two{i}', cai_reshaped{i}', tai_reshaped{i}'];
+        
+    y{i} = reshaped_repress{i}';
+    
+end
+
+
+
 
 % ORF
 if method == "training"
-    clc
-    clearvars info B nonan Xnonan MPGnonan
-    clearvars y X_all X B info
-    i = 2;
-    y = reshaped_repress{i}';
-
-    X_all = [codon_counts_orfs{i}', codon_counts{i}', cai_reshaped{i}', conservation{i}', ...
-         conservation_ratios{i}', corf_lengths{i}', ...
-         corf_lengths{i}', cutr3_lengths{i}', cutr5_lengths{i}', ...
-         distance_ratio_one{i}', distance_ratio_three{i}', ...
-         distance_ratio_two{i}', folding_energies{i}', gc_orf{i}', ...
-         gc_utr3{i}', gc_utr5{i}', lengths_reshaped{i}',...
-         reshaped_mer7{i}', reshaped_indices{i}', ...
-         tai_reshaped{i}', terminus_distance_one{i}', terminus_distance_two{i}', whole_conservations_reshaped{i}'];
     
-     X = X_all;
-
-    [B, info] = lasso(X, y, 'CV', 5, 'Alpha', 0.5);
-    coef = B(:,1);
-    coef0 = info.Intercept(1);
-    orf_model = struct('coef', coef, 'coef0', coef0);
-    normalized_X = coef' * X';
-    X_regularized = normalized_X' + coef0;
-    correlation = corr(y, X_regularized) * 100;
+    clc
+    regress_type = input("\nStepwise(1) or Lasso(2):   ");
+    feature_type = input("\nAll Features(1) or Select Features(2):    ");
+    
+    if feature_type == 1
+        X = X_all{2};
+    elseif feature_type == 2
+        X = X_recommended{2};
+    end
+    
+  
+    
+    if regress_type == 2
+        [B, info] = lasso(X, y{2}, 'CV', 5, 'Alpha', 0.5);
+        coef = B(:,1);
+        coef0 = info.Intercept(1);
+        orf_model = struct('coef', coef, 'coef0', coef0);
+        normalized_X = coef' * X';
+        y_pred = normalized_X' + coef0;
+        save('regression_models/orf_model.mat', 'orf_model')
+    elseif regress_type == 1
+        model = stepwiselm(X, y{2});
+        y_pred = predict(model, X);
+    end
+    
+    correlation = corr(y{2}, y_pred) * 100;
     fprintf("\nPearson Lasso Correlation: %.2f%%\n", correlation)
-    correlation = corr(y, X_regularized, 'type', 'spearman') * 100;
+    correlation = corr(y{2}, y_pred, 'type', 'spearman') * 100;
     fprintf("\nSpearman Lasso Correlation: %.2f%%\n", correlation)
-    save('regression_models/orf_model.mat', 'orf_model')
 
-%     model = stepwiselm(X, y);
-%     y_pred = predict(model, X);
-%     correlation = corr(y, y_pred)
+
     
     % UTR3
-    
-    clearvars y X_all X B info
-
-    stepwise_model = cell(1);
-    lasso_model = cell(1);
-    i = 3;
-        y = reshaped_repress{i}';
-
-    X_all = [codon_counts_orfs{i}', codon_counts{i}', cai_reshaped{i}', conservation{i}', ...
-         conservation_ratios{i}', corf_lengths{i}', ...
-         corf_lengths{i}', cutr3_lengths{i}', cutr5_lengths{i}', ...
-         distance_ratio_one{i}', distance_ratio_three{i}', ...
-         distance_ratio_two{i}', folding_energies{i}', gc_orf{i}', ...
-         gc_utr3{i}', gc_utr5{i}', lengths_reshaped{i}',...
-         reshaped_mer7{i}', reshaped_indices{i}', ...
-         tai_reshaped{i}', terminus_distance_one{i}', terminus_distance_two{i}', whole_conservations_reshaped{i}'];
    
-     X = X_all;
+    if feature_type == 1
+        X = X_all{3};
+    elseif feature_type == 2
+        X = X_recommended{3};
+    end
+    
+    if regress_type == 2
+        [B, info] = lasso(X,y{3}, 'CV', 10, 'Alpha', 0.5);
+        coef = B(:,1);
+        coef0 = info.Intercept(1);
+        utr3_model = struct('coef', coef, 'coef0', coef0);
+        normalized_X = coef' * X';
+        y_pred = normalized_X' + coef0;
+    elseif regress_type == 1
+        model = stepwiselm(X, y{3});
+        y_pred = predict(model, X);
+    end  
 
-    [B, info] = lasso(X,y, 'CV', 10, 'Alpha', 0.5);
-    coef = B(:,1);
-    coef0 = info.Intercept(1);
-    utr3_model = struct('coef', coef, 'coef0', coef0);
-    normalized_X = coef' * X';
-    y_pred = normalized_X' + coef0;
-    correlation = corr(y_pred, y) * 100;
+    correlation = corr(y_pred, y{3}) * 100;
     fprintf("\nPearson Lasso Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
+    correlation = corr(y_pred, y{3}, 'type', 'spearman') * 100;
     fprintf("\nSpearman Lasso Correlation: %.2f%%\n", correlation)
     save('regression_models/utr3_model.mat', 'utr3_model')
 
 elseif method == "validation"
-
     load('regression_models/orf_model.mat')
      
     i = 2;
@@ -620,15 +641,16 @@ elseif method == "validation"
      
     coef = utr3_model.coef;
     coef0 = utr3_model.coef0;
-    validation_orf = coef' * X' + coef0; 
+    validation_utr3 = coef' * X' + coef0; 
     
     load('data_sets/validation_data/reconstruct_index_three.mat')
-    pred_utr3 = reconstruct_data(validation_utr3{1, 3}, reconstruct_index_three);
+    pred_utr3 = reconstruct_data(validation_utr3, reconstruct_index_three);
     save('validation_predictions/pred_utr3.mat', 'pred_utr3');
-
+    
+    predictions = pred_orf + pred_utr3;
+    save('validation_predictions/predictions.mat', 'predictions');
+    
 end
-
-
 
 
 
