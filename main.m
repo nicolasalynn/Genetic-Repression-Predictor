@@ -1,10 +1,10 @@
 clear, clc
-%% Genetic Supression Predictor -- TRAINING -- RUN ME
+%% Genetic Supression Predictor                             
 %   Goal: To predict mRNA degradation and supression as a result of miRNA
 %   interaction.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\
 
-%% Training Initiation
+%% Training/Validating Initiation                           
 clear, clc
 
 addpath nico_functions
@@ -84,7 +84,7 @@ elseif STR == 2
     
 end
 
-%% Find the first instance of miRNA mRNA binding for each combination (Nico)
+%% INDICED OF BINDING                                       
 
 run_initiation = input("Do you want to recalculate the miRNA-mRNA binding "  +  ...
 "indices? This action will take approximatelly 2 minutes... \n([Y] = 1, [N] = 0):  ");
@@ -95,7 +95,7 @@ if run_initiation
 end
 clearvars run_initiation
 
-%% Obtain windows of specified length for all indices found previously
+%% WINDOWS                                                  
 run_windows = input("Do you want to recalculate the binding windows? " + ...
     "\n([Y] = 1, [N] = 0):  ");
 
@@ -107,7 +107,7 @@ end
 
 clearvars run_windows
 
-%% Load Data -- RUN THIS IF YOU ARE NOT INITIATING
+%% Load Data -- RUN THIS IF YOU ARE NOT INITIATING          
 
 addpath nico_functions
 addpath lotem_functions
@@ -130,7 +130,7 @@ load(strcat(path, 'reshaped_repress.mat'))
 load(strcat(path, "windows_reshaped.mat"))
 load(strcat(path, "reshaped_indices.mat"))
 
-%% Feature: Total Length of Sequence
+%% Feature: Total Length of Sequence                        
 if method == "training"
     load(strcat(path, 'whole_reshaped.mat'))
     load(strcat(path, 'reshaped_repress.mat'))
@@ -150,7 +150,7 @@ if method == "training"
     end
 end
 
-%% Feature: Thermodynamics
+%% Feature: Thermodynamics                                  
 clc
 load(strcat(path, "windows_reshaped.mat"))
 
@@ -184,7 +184,7 @@ load(strcat(path, 'reshaped_repress.mat'));
     
 clearvars folding_energies reshaped_repress
 
-%% Feature: Conservation
+%% Feature: Conservation                                    
 clc
 
 load(strcat(path, 'conservation.mat'))
@@ -224,7 +224,7 @@ if method == "training"
     end
 end
 
-%% Feature: Distance to terminus
+%% Feature: Distance to terminus                            
 
 clc
 
@@ -294,7 +294,7 @@ save(strcat(path, 'distance_ratio_one.mat'), 'distance_ratio_one')
 save(strcat(path, 'distance_ratio_two.mat'), 'distance_ratio_two')
 save(strcat(path, 'distance_ratio_three.mat'), 'distance_ratio_three')
 
-%% Feature: CAI 
+%% Feature: CAI                                             
 
 load(strcat(path, 'reshaped_repress.mat'));
 load(strcat(challenge_path, 'codon_CAI.mat'));
@@ -328,7 +328,7 @@ end
 clearvars ans CAI_ORF CAI_UTR3 CAI_UTR5 Sequences_ORF Sequences_UTR3 Sequences_UTR5 titles windows_reshaped i codon_CAI 
 save(strcat(path, 'cai_reshaped.mat'), 'cai_reshaped');
 
-%% Feature: tAI 
+%% Feature: tAI                                             
 
 clc
 load(strcat(path, 'windows_reshaped.mat'));
@@ -363,7 +363,7 @@ end
 clearvars ans tAI_ORF tAI_UTR3 tAI_UTR5 Sequences_ORF Sequences_UTR3 Sequences_UTR5 titles windows_reshaped i codon_tAI 
     save(strcat(path, 'tai_reshaped.mat'), 'tai_reshaped'); 
 
-%% Feature: Codon Count of Windows
+%% Feature: Codon Count of Windows                          
 clc
 
 load(strcat(path,'windows_reshaped.mat'));
@@ -381,7 +381,7 @@ end
 
 save(strcat(path, 'codon_counts.mat'), 'codon_counts');
 
-%% Codon Counts of ORF
+%% Feature: Codon Counts of ORF                             
 
 clc
 
@@ -400,7 +400,7 @@ end
 
 save(strcat(path, 'codon_counts_orf.mat'), 'codon_counts_orfs');
 
-%% GC content 
+%% Feature: GC content                                      
 
 clc
 
@@ -452,7 +452,7 @@ save(strcat(path, 'gc_orf.mat'), 'gc_orf')
 save(strcat(path, 'gc_utr3.mat'), 'gc_utr3')
 save(strcat(path, 'gc_utr5.mat'), 'gc_utr5')
 
-%% MODELLING STEP
+%% MODELLING STEP                                           
 
 type = input("training (1) or validation?(2)\n");
 if type == 1
@@ -628,7 +628,12 @@ elseif method == "validation"
 
 end
 
-%%
+
+
+
+
+
+%% EXTRA>>>>>
 % %% Extra
 % 
 % % Feature: Length of miRNA and repression (find average repression levels across each of 74 miRNAs)
