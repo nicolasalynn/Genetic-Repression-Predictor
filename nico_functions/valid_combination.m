@@ -1,4 +1,4 @@
-function [index, repress, ok] = valid_combination(primary, second_one, second_two, additional, trial)
+function [index, repress, mer7_count, ok] = valid_combination(primary, second_one, second_two, mer7, additional, trial)
 
    if trial == "noutr5"
     
@@ -6,11 +6,13 @@ function [index, repress, ok] = valid_combination(primary, second_one, second_tw
                 index = primary(1);
                 repress = additional;
                 ok = 1;
+                mer7_count = max(0.00001, mer7);
                 
         else
                 index = NaN;
                 repress = NaN;
                 ok = 0;
+                mer7_count = NaN;
         end
         
    elseif trial == "normal"
@@ -19,18 +21,18 @@ function [index, repress, ok] = valid_combination(primary, second_one, second_tw
                 index = primary(1);
                 repress = additional;
                 ok = 1;
+                mer7_count = max(0.00001, mer7);
+
                 
             else
                 index = NaN;
                 repress = NaN;
                 ok = 0;
+                mer7_count = NaN;
+
             end
    end
     
     
 end
 
-
-
-
-end

@@ -1,29 +1,18 @@
 %% Returns the 63 nucleotide window around the first index of the seed area
 
-function get_gene_windows(gene_list, indices, file_save_name, window_width, method)
+function get_gene_windows(gene_list, indices, window_width, method)
     
     f = waitbar(0, "Calculating Window Energies...");
-
-    %load("data_sets/challenge_data/genes_training.mat");
-    conservation_vals = gene_list(:, 5);
     
+    conservation_vals = gene_list(:, 5);
     indices(isnan(indices)) = 0;
     
     if method == "training"
-        file_name_1 = strcat('data_sets/feature_data/', char(file_save_name), '.mat');
-        file_name_2 = strcat('data_sets/feature_data/reshaped_', char(file_save_name), '.mat');
-        file_name_3 = strcat('data_sets/feature_data/total_lengths.mat');
-        file_name_4 = strcat('data_sets/feature_data/whole_sequence.mat');
-        file_name_5 = 'data_sets/feature_data/conservations.mat';
-        file_name_6 = 'data_sets/feature_data/whole_conservations.mat';
+
         path = 'data_sets/feature_data/';
+        
     elseif method == "validation"
-        file_name_1 = strcat('data_sets/validation_data/', char(file_save_name), '.mat');
-        file_name_2 = strcat('data_sets/validation_data/reshaped_', char(file_save_name), '.mat');
-        file_name_3 = strcat('data_sets/validation_data/total_lengths.mat');
-        file_name_4 = strcat('data_sets/validation_data/whole_sequence.mat');
-        file_name_5 = 'data_sets/validation_data/conservations.mat';
-        file_name_6 = 'data_sets/validation_data/whole_conservations.mat';
+
         path = 'data_sets/validation_data/';
 
     end
@@ -31,8 +20,8 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
         
     window = window_width;
     orfs = table2array(gene_list(:, 3));
-    utr5s = table2array(gene_list(:, 2));    %
-    utr3s = table2array(gene_list(:, 4));    %
+    utr5s = table2array(gene_list(:, 2));    
+    utr3s = table2array(gene_list(:, 4));    
     
  
     [num_mirnas, num_genes, dim] = size(indices);
@@ -45,7 +34,10 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
     corresponding_utr3 = strings(num_mirnas, num_genes, dim);
     corresponding_utr5 = strings(num_mirnas, num_genes, dim);
     
-    
+    corf_lengths = zeros(num_mirnas, num_genes, dim);
+    cutr5_lengths = zeros(num_mirnas, num_genes, dim);
+    cutr3_lengths = zeros(num_mirnas, num_genes, dim); 
+
         for mirna = 1:num_mirnas
             
             for gene = 1:num_genes
@@ -80,6 +72,9 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                     corresponding_orf(mirna, gene, 1) = orf;
                     corresponding_utr3(mirna, gene, 1) = utr3;
                     corresponding_utr5(mirna, gene, 1) = utr5;
+                    corf_lengths(mirna, gene, 1) = strlength(orf);
+                    cutr5_lengths(mirna, gene, 1) = strlength(utr5);
+                    cutr3_lengths(mirna, gene, 1) = strlength(utr3);
                     
                     if strlength(utr5) <= window
                         true_nt_windows(mirna, gene, 1) = utr5;
@@ -101,6 +96,9 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                     corresponding_orf(mirna, gene, 1) = NaN;
                     corresponding_utr3(mirna, gene, 1) = NaN;
                     corresponding_utr5(mirna, gene, 1) = NaN;
+                    corf_lengths(mirna, gene, 1) = NaN;
+                    cutr5_lengths(mirna, gene, 1) = NaN;
+                    cutr3_lengths(mirna, gene, 1) = NaN;
                 end
                 
                 
@@ -112,6 +110,11 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                     corresponding_orf(mirna, gene, 2) = orf;
                     corresponding_utr3(mirna, gene, 2) = utr3;
                     corresponding_utr5(mirna, gene, 2) = utr5;
+                    
+                    
+                    corf_lengths(mirna, gene, 2) = strlength(orf);
+                    cutr5_lengths(mirna, gene, 2) = strlength(utr5);
+                    cutr3_lengths(mirna, gene, 2) = strlength(utr3);
                     
                     if strlength(orf) <= window
                         true_nt_windows(mirna, gene, 2) = orf;
@@ -133,6 +136,9 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                     corresponding_orf(mirna, gene, 2) = NaN;
                     corresponding_utr3(mirna, gene, 2) = NaN;
                     corresponding_utr5(mirna, gene, 2) = NaN;
+                    corf_lengths(mirna, gene, 2) = NaN;
+                    cutr5_lengths(mirna, gene, 2) = NaN;
+                    cutr3_lengths(mirna, gene, 2) = NaN;
                 end
                     
                     
@@ -146,6 +152,9 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                     corresponding_utr3(mirna, gene, 3) = utr3;
                     corresponding_utr5(mirna, gene, 3) = utr5;
                     
+                    corf_lengths(mirna, gene, 3) = strlength(orf);
+                    cutr5_lengths(mirna, gene, 3) = strlength(utr5);
+                    cutr3_lengths(mirna, gene, 3) = strlength(utr3); 
                     
                     if strlength(utr3) <= window
                         true_nt_windows(mirna, gene, 3) = utr3;
@@ -168,6 +177,10 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                     corresponding_orf(mirna, gene, 3) = NaN;
                     corresponding_utr3(mirna, gene, 3) = NaN;
                     corresponding_utr5(mirna, gene, 3) = NaN;
+                    
+                    corf_lengths(mirna, gene, 3) = NaN;
+                    cutr5_lengths(mirna, gene, 3) = NaN;
+                    cutr3_lengths(mirna, gene, 3) = NaN; 
                 end
                     
                     
@@ -186,19 +199,23 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
     corresponding_orf = reshape_nico(corresponding_orf, "str");
     corresponding_utr5 = reshape_nico(corresponding_utr5, "str");
     corresponding_utr3 = reshape_nico(corresponding_utr3 , "str");
+    cutr5_lengths = reshape_nico(cutr5_lengths, "num");
+    cutr3_lengths = reshape_nico(cutr3_lengths, "num");
+    corf_lengths = reshape_nico(corf_lengths, "num");
 
     clear binding_indices
     
-    
-    %save(file_name_1, 'true_nt_windows')
-    save(file_name_2, 'windows_reshaped')
-    save(file_name_3, 'lengths_reshaped')
-    save(file_name_4, 'whole_reshaped')
-    save(file_name_5, 'conservation');
-    save(file_name_6, 'whole_conservations_reshaped')
-    save(strcat(path, 'corresponding_orf.mat'), 'corresponding_orf')
+    save(strcat(path, 'windows_reshaped', '.mat'), 'windows_reshaped')
+    save(strcat(path, 'lengths_reshaped', '.mat'), 'lengths_reshaped')
+    save(strcat(path, 'whole_reshaped', '.mat'), 'whole_reshaped')
+    save(strcat(path, 'conservation', '.mat'), 'conservation');
+    save(strcat(path, 'whole_conservations_reshaped', '.mat'), 'whole_conservations_reshaped')
+    save(strcat(path, 'corresponding_orf','.mat'), 'corresponding_orf')
     save(strcat(path, 'corresponding_utr3.mat'), 'corresponding_utr3')
     save(strcat(path, 'corresponding_utr5.mat'), 'corresponding_utr5')
+    save(strcat(path, 'corf_lengths.mat'), 'corf_lengths')
+    save(strcat(path, 'cutr5_lengths.mat'), 'cutr5_lengths')
+    save(strcat(path, 'cutr3_lengths.mat'), 'cutr3_lengths')
 
     close(f)
 
