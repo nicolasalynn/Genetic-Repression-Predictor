@@ -16,6 +16,7 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
         file_name_4 = strcat('data_sets/feature_data/whole_sequence.mat');
         file_name_5 = 'data_sets/feature_data/conservations.mat';
         file_name_6 = 'data_sets/feature_data/whole_conservations.mat';
+        path = 'data_sets/feature_data/';
     elseif method == "validation"
         file_name_1 = strcat('data_sets/validation_data/', char(file_save_name), '.mat');
         file_name_2 = strcat('data_sets/validation_data/reshaped_', char(file_save_name), '.mat');
@@ -23,6 +24,7 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
         file_name_4 = strcat('data_sets/validation_data/whole_sequence.mat');
         file_name_5 = 'data_sets/validation_data/conservations.mat';
         file_name_6 = 'data_sets/validation_data/whole_conservations.mat';
+        path = 'data_sets/validation_data/';
 
     end
         
@@ -39,17 +41,24 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
     whole_sequence = strings(num_mirnas, num_genes, dim);
     average_conservation = zeros(num_mirnas, num_genes, dim);
     whole_conservation = zeros(num_mirnas, num_genes, dim);
+    corresponding_orf = strings(num_mirnas, num_genes, dim);
+    corresponding_utr3 = strings(num_mirnas, num_genes, dim);
+    corresponding_utr5 = strings(num_mirnas, num_genes, dim);
     
-        for gene = 1:num_genes
-            waitbar(gene/num_genes, f, "Looping through indices...")
+    
+        for mirna = 1:num_mirnas
+            
+            for gene = 1:num_genes
+                
+                waitbar(mirna/num_mirnas, f, "Looping through indices...")
 
 
-            orf = cell2mat(orfs(gene));
-            utr5 = cell2mat(utr5s(gene));   
-            utr3 = cell2mat(utr3s(gene));   
+                orf = cell2mat(orfs(gene));
+                utr5 = cell2mat(utr5s(gene));   
+                utr3 = cell2mat(utr3s(gene));   
 
 
-            for mirna = 1:num_mirnas
+            %for mirna = 1:num_mirnas
                 
                 
                 index_val_utr5 = indices(mirna, gene, 1);
@@ -60,13 +69,18 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                 utr5_length = strlength(utr5);
                 orf_length = strlength(orf);
                 utr3_length = strlength(utr3);
+                
                 conservation_vector = cell2mat(conservation_vals{gene, 1})';
                 
                 if (index_val_utr5 ~= 0)
                     total_lengths(mirna, gene, 1) = strlength(utr5);
                     whole_sequence(mirna, gene, 1) = utr5;
                     whole_conservation(mirna, gene, 1) = mean(conservation_vector);
-
+                    
+                    corresponding_orf(mirna, gene, 1) = orf;
+                    corresponding_utr3(mirna, gene, 1) = utr3;
+                    corresponding_utr5(mirna, gene, 1) = utr5;
+                    
                     if strlength(utr5) <= window
                         true_nt_windows(mirna, gene, 1) = utr5;
                         average_conservation(mirna, gene, 1) = mean(conservation_vector(1:utr5_length));
@@ -84,7 +98,9 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                     true_nt_windows(mirna, gene, 1) = NaN;
                     whole_sequence(mirna, gene, 1) = NaN;
                     average_conservation(mirna, gene, 1) = NaN;
-
+                    corresponding_orf(mirna, gene, 1) = NaN;
+                    corresponding_utr3(mirna, gene, 1) = NaN;
+                    corresponding_utr5(mirna, gene, 1) = NaN;
                 end
                 
                 
@@ -93,6 +109,10 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                     whole_sequence(mirna, gene, 2) = orf;
                     whole_conservation(mirna, gene, 2) = mean(conservation_vector);
 
+                    corresponding_orf(mirna, gene, 2) = orf;
+                    corresponding_utr3(mirna, gene, 2) = utr3;
+                    corresponding_utr5(mirna, gene, 2) = utr5;
+                    
                     if strlength(orf) <= window
                         true_nt_windows(mirna, gene, 2) = orf;
                         average_conservation(mirna, gene, 2) = mean(conservation_vector(utr5_length:utr5_length + orf_length));
@@ -110,7 +130,9 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                     true_nt_windows(mirna, gene, 2) = NaN;                    
                     whole_sequence(mirna, gene, 2) = NaN;
                     average_conservation(mirna, gene, 2) = NaN;
-
+                    corresponding_orf(mirna, gene, 2) = NaN;
+                    corresponding_utr3(mirna, gene, 2) = NaN;
+                    corresponding_utr5(mirna, gene, 2) = NaN;
                 end
                     
                     
@@ -119,6 +141,12 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                     whole_sequence(mirna, gene, 3) = utr3;
                     whole_conservation(mirna, gene, 3) = mean(conservation_vector);
 
+                    
+                    corresponding_orf(mirna, gene, 3) = orf;
+                    corresponding_utr3(mirna, gene, 3) = utr3;
+                    corresponding_utr5(mirna, gene, 3) = utr5;
+                    
+                    
                     if strlength(utr3) <= window
                         true_nt_windows(mirna, gene, 3) = utr3;
                         average_conservation(mirna, gene, 3) = mean(conservation_vector(utr5_length + orf_length:utr5_length + orf_length + utr3_length));
@@ -136,6 +164,10 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
                     true_nt_windows(mirna, gene, 3) = NaN;
                     whole_sequence(mirna, gene, 3) = NaN;
                     average_conservation(mirna, gene, 3) = NaN;
+                    
+                    corresponding_orf(mirna, gene, 3) = NaN;
+                    corresponding_utr3(mirna, gene, 3) = NaN;
+                    corresponding_utr5(mirna, gene, 3) = NaN;
                 end
                     
                     
@@ -151,8 +183,10 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
     whole_reshaped = reshape_nico(whole_sequence, "str");
     %average_conservation(average_conservation == 0) = NaN;
     conservation = reshape_nico(average_conservation, "num");
-    
-    
+    corresponding_orf = reshape_nico(corresponding_orf, "str");
+    corresponding_utr5 = reshape_nico(corresponding_utr5, "str");
+    corresponding_utr3 = reshape_nico(corresponding_utr3 , "str");
+
     clear binding_indices
     
     
@@ -162,7 +196,10 @@ function get_gene_windows(gene_list, indices, file_save_name, window_width, meth
     save(file_name_4, 'whole_reshaped')
     save(file_name_5, 'conservation');
     save(file_name_6, 'whole_conservations_reshaped')
-    
+    save(strcat(path, 'corresponding_orf.mat'), 'corresponding_orf')
+    save(strcat(path, 'corresponding_utr3.mat'), 'corresponding_utr3')
+    save(strcat(path, 'corresponding_utr5.mat'), 'corresponding_utr5')
+
     close(f)
 
 end

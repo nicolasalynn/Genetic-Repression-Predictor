@@ -3,7 +3,7 @@ function [GC_content_calculation] = GC_content_generator(Sequences)
 %this function will calculate the GC content of each sequence of the
 %binding sites
 
-[r,Sequences_number]= size(Sequences);
+[~,Sequences_number]= size(Sequences);
 j=0;
     for j=1:Sequences_number
         seq=Sequences(j); 

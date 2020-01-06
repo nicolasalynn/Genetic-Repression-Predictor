@@ -4,8 +4,8 @@ function [CAI_calculations] =  CAI_generator (Sequences,codon_CAI)
 %this function will calculate the CAI value of each sequence of the
 %binding sites
 
-[r,Sequences_number]= size(Sequences);
-j=0;
+[~,Sequences_number]= size(Sequences);
+
     for j=1:Sequences_number
         %We take the binding site sequence in column j and calcuate the CAI value of the sequence there
         seq=Sequences(j); 
@@ -19,12 +19,20 @@ j=0;
                 counter=counter+1;
                 seq_char=char(seq);
                 str=seq_char(i:i+2);            
-                [row,column] = find(strcmp(codon_CAI, str));            
+                [~,column] = find(strcmp(codon_CAI, str));            
                 CAI_str_value=codon_CAI{2,column};
                 w(counter)=CAI_str_value;
                 i=i+3;
         end
-        CAI(j)=exp(sum(log(w))/codon_number);
+        %CAI(j)=exp(sum(log(w))/codon_number);
+        %temp = (prod(w))^(1/codon_number)
+        %temp = exp(sum(log(w))/codon_number);
+        temp2 = geomean(w);
+%         if temp ~= temp2
+%             disp('no!!!')
+%         else
+            CAI(j) = temp2;
+%         end
     end
 CAI_calculations = CAI;
 end

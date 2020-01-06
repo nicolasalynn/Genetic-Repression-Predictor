@@ -1,5 +1,5 @@
 clear, clc
-%%  Genetic Supression Predictor -- TRAINING -- RUN ME
+%% Genetic Supression Predictor -- TRAINING -- RUN ME
 %   Goal: To predict mRNA degradation and supression as a result of miRNA
 %   interaction.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\
@@ -85,39 +85,13 @@ load("data_sets/feature_data/reshaped_indices.mat")
 %load("data_sets/feature_data/good_repress.mat")
 %load("data_sets/feature_data/binary_truth.mat")
 
-%% ~Feature: Number of Binding Sites Across all regions (Nico)
-clear, clear, clc
-
-load("data_sets/feature_data/all_indices.mat")
-load("data_sets/challenge_data/repress_use.mat")
-
-combined_indices = all_indices(:, :, 1) + all_indices(:, :, 2) + all_indices(:, :, 3); % number of occurances accross all three sequences
-repress = repress_use;
-clearvars all_indices repress_use
-
-fprintf("\nFeature: Number of binding sites across UTR5, ORF, UTR3")
-data_pipeline(combined_indices, repress);
-
-%% ~Feature: Average Repression in presence and absence of binding site
-clear, clc
-
-load("data_sets/feature_data/all_indices.mat")
-load("data_sets/challenge_data/repress_use.mat")
-
-binding_or_no = all_indices;
-binding_or_no(binding_or_no > 0) = 1;
-binding_or_no(binding_or_no ~= 1) = 0;
-clearvars all_indices 
-fprintf("\nFeature: Mean Observations Between Presence of Binding Site and None")
-data_pipeline(binding_or_no(:,:,1), repress_use);
-
-%% ~Feature: Total Length of Sequence
+%% Feature: Total Length of Sequence
 load('data_sets/feature_data/whole_sequence.mat')
 load('data_Sets/feature_data/reshaped_repress.mat')
 
 total_lengths = cell(1, 3);
 
-for i = 1:3
+for i = 2:3
     seqs = whole_reshaped{i};
     lengths = zeros(1, length(seqs));
     for j = 1:length(seqs)
@@ -180,18 +154,15 @@ load("data_sets/feature_data/reshaped_nt_windows.mat")
 calc_folding_e = input("\nWould you like to calculate folding " + ...
     "energies?\nThis will take a few minutes..\n [Y]:1, [N]:0\n>>");
 if calc_folding_e == 1
-    
-    %tic
-    dim = 0; % change this value depending of sequence region target
-    folding_energies = find_folding_energies(windows_reshaped, "training");
-    %fold_energy_time = toc;  
+    folding_energies = find_folding_energies(windows_reshaped, "training"); 
 end
 clearvars calc_folding_e
-  
+
 load('data_sets/feature_data/folding_energies.mat');
 load('data_sets/feature_data/reshaped_repress.mat');
 
-for dim = 1:size(folding_energies, 2)
+for dim = 2:3
+    
     if dim == 1
         sequence_dec = "UTR 5'";
     elseif dim == 2
@@ -199,8 +170,10 @@ for dim = 1:size(folding_energies, 2)
     else
         sequence_dec = "UTR 3'";
     end
+    
     fprintf("\n" + strcat("Feature: Folding Energy of Binding Window in ", sequence_dec))
     data_pipeline(folding_energies{1, dim}, reshaped_repress{1, dim});
+    
 end
 
 clearvars folding_energies reshaped_repress
@@ -260,26 +233,26 @@ distance_ratio_two = cell(1, 3);
 distance_ratio_three = cell(1, 3);
 
 fprintf("\nFeature: Distance to Begining Terminus\n")
-for i = 1:length(reshaped_indices)
+for i = 2:length(reshaped_indices)
     fprintf("\nCurrent Sequence Type: %s", titles(i))
     data_pipeline(reshaped_indices{1, i}, reshaped_repress{1, i});
 end
 
 fprintf("\nFeature: Distance to Closest Terminus\n")
-for i = 1:length(terminus_distance_one)
+for i = 2:length(terminus_distance_one)
     fprintf("\nCurrent Sequence Type: %s", titles(i))
     data_pipeline(terminus_distance_one{1, i}, reshaped_repress{1, i});
 end
 
 fprintf("\nFeature: Distance to Closest Terminus\n")
 
-for i = 1:length(terminus_distance_two)
+for i = 2:length(terminus_distance_two)
     fprintf("\nCurrent Sequence Type: %s", titles(i))
     data_pipeline(terminus_distance_two{1, i}, reshaped_repress{1, i});
 end
 
 fprintf("\nFeature: Ratio of Distance to Begining Terminus\n")
-for i = 1:length(reshaped_indices)
+for i = 2:length(reshaped_indices)
     fprintf("\nCurrent Sequence Type: %s", titles(i))
     distance_ratio_three{1, i} = reshaped_indices{1, i}./ lengths_reshaped{1, i};
     data_pipeline(distance_ratio_three{1, i}, reshaped_repress{1, i});
@@ -287,7 +260,7 @@ end
 
 fprintf("\nFeature: Ratio of Distance End Terminus\n")
 
-for i = 1:length(terminus_distance_one)
+for i = 2:length(terminus_distance_one)
     fprintf("\nCurrent Sequence Type: %s", titles(i))
     distance_ratio_one{1, i} = terminus_distance_one{1, i}./lengths_reshaped{1, i};
     data_pipeline(distance_ratio_one{1, i}, reshaped_repress{1, i});
@@ -296,7 +269,7 @@ end
 
 fprintf("\nFeature: Ratio of Distance to Closest Terminus\n")
 
-for i = 1:length(terminus_distance_two)
+for i = 2:length(terminus_distance_two)
     fprintf("\nCurrent Sequence Type: %s", titles(i))
     distance_ratio_two{1, i} = terminus_distance_two{1, i}./lengths_reshaped{1, i};
     data_pipeline(distance_ratio_two{1, i}, reshaped_repress{1, i});
@@ -312,60 +285,60 @@ save('data_sets/feature_data/distance_ratio_three.mat', 'distance_ratio_three')
 %% Feature: CAI 
 
 clear, clc
-load('data_sets/feature_data/reshaped_nt_windows.mat');
+%load('data_sets/feature_data/reshaped_nt_windows.mat');
 load('data_sets/feature_data/reshaped_repress.mat');
 load('data_sets/challenge_data/codon_CAI.mat')
-load('data_sets/feature_data/whole_sequence.mat')
+load('data_sets/feature_data/corresponding_orf.mat')
 
 cai_reshaped = cell(1, 3);
 cai_whole_reshaped = cell(1,3);
 
-Sequences_ORF = windows_reshaped{1,2};
-Sequence_ORF_whole = whole_reshaped{1, 2};
+Sequences_ORF = corresponding_orf{1,2};
+%Sequence_ORF_whole = whole_reshaped{1, 2};
 cai_reshaped{1,2} = CAI_generator(Sequences_ORF,codon_CAI);
-cai_whole_reshaped{1, 2} = CAI_generator(Sequence_ORF_whole, codon_CAI);
-cai_ratio{1, 2} = cai_reshaped{1, 2}./cai_whole_reshaped{1, 2};
+%cai_whole_reshaped{1, 2} = CAI_generator(Sequence_ORF_whole, codon_CAI);
+%cai_ratio{1, 2} = cai_reshaped{1, 2}./cai_whole_reshaped{1, 2};
 
-Sequences_UTR5 = windows_reshaped{1,1};
-Sequence_UTR5_whole = whole_reshaped{1, 1};
+Sequences_UTR5 = corresponding_orf{1,1};
+%Sequence_UTR5_whole = whole_reshaped{1, 1};
 cai_reshaped{1, 1} = CAI_generator(Sequences_UTR5,codon_CAI);
-cai_whole_reshaped{1, 1} = CAI_generator(Sequence_UTR5_whole, codon_CAI);
-cai_ratio{1, 1} = cai_reshaped{1, 1}./cai_whole_reshaped{1, 1};
+% cai_whole_reshaped{1, 1} = CAI_generator(Sequence_UTR5_whole, codon_CAI);
+% cai_ratio{1, 1} = cai_reshaped{1, 1}./cai_whole_reshaped{1, 1};
 
-Sequences_UTR3 = windows_reshaped{1,3};
-Sequence_UTR3_whole = whole_reshaped{1, 3};
+Sequences_UTR3 = corresponding_orf{1,3};
+%Sequence_UTR3_whole = whole_reshaped{1, 3};
 cai_reshaped{1, 3} = CAI_generator(Sequences_UTR3,codon_CAI);
-cai_whole_reshaped{1, 3} = CAI_generator(Sequence_UTR3_whole, codon_CAI);
-cai_ratio{1, 3} = cai_reshaped{1, 3}./cai_whole_reshaped{1, 3};
+% cai_whole_reshaped{1, 3} = CAI_generator(Sequence_UTR3_whole, codon_CAI);
+% cai_ratio{1, 3} = cai_reshaped{1, 3}./cai_whole_reshaped{1, 3};
 
 
 titles = ["UTR5", "ORF", "UTR3"];
 
 fprintf("\nFeature: CAI Score of Binding Window \n")
 
-for i = 1:length(cai_reshaped)
+for i = 2:length(cai_reshaped)
     fprintf("\nCurrent Sequence Type: %s", titles(i))
     data_pipeline(cai_reshaped{1, i}, reshaped_repress{1, i});
 end
 
-fprintf("\nFeature: CAI Score of WHole Sequence \n")
-
-for i = 1:length(cai_whole_reshaped)
-    fprintf("\nCurrent Sequence Type: %s", titles(i))
-    data_pipeline(cai_whole_reshaped{1, i}, reshaped_repress{1, i});
-end
-
-fprintf("\nFeature: CAI Score Ratio \n")
-
-for i = 1:length(cai_ratio)
-    fprintf("\nCurrent Sequence Type: %s", titles(i))
-    data_pipeline(cai_ratio{1, i}, reshaped_repress{1, i});
-end
+%fprintf("\nFeature: CAI Score of WHole Sequence \n")
+% 
+% for i = 2:length(cai_whole_reshaped)
+%     fprintf("\nCurrent Sequence Type: %s", titles(i))
+%     data_pipeline(cai_whole_reshaped{1, i}, reshaped_repress{1, i});
+% end
+% 
+% fprintf("\nFeature: CAI Score Ratio \n")
+% 
+% for i = 2:length(cai_ratio)
+%     fprintf("\nCurrent Sequence Type: %s", titles(i))
+%     data_pipeline(cai_ratio{1, i}, reshaped_repress{1, i});
+% end
 
 clearvars ans CAI_ORF CAI_UTR3 CAI_UTR5 Sequences_ORF Sequences_UTR3 Sequences_UTR5 titles windows_reshaped i codon_CAI 
 save('data_sets/feature_data/cai_reshaped.mat', 'cai_reshaped')
-save('data_sets/feature_data/cai_whole_reshaped.mat', 'cai_whole_reshaped')
-save('data_sets/feature_data/cai_ratio.mat', 'cai_ratio')
+% save('data_sets/feature_data/cai_whole_reshaped.mat', 'cai_whole_reshaped')
+% save('data_sets/feature_data/cai_ratio.mat', 'cai_ratio')
 
 %% Feature: tAI 
 
@@ -379,53 +352,53 @@ tai_reshaped = cell(1, 3);
 tai_whole_reshaped = cell(1,3);
 
 Sequences_ORF = windows_reshaped{1,2};
-Sequence_ORF_whole = whole_reshaped{1, 2};
+%Sequence_ORF_whole = whole_reshaped{1, 2};
 tai_reshaped{1,2} = CAI_generator(Sequences_ORF,codon_tAI);
-tai_whole_reshaped{1, 2} = CAI_generator(Sequence_ORF_whole, codon_tAI);
-tai_ratio{1, 2} = tai_reshaped{1, 2}./tai_whole_reshaped{1, 2};
+%tai_whole_reshaped{1, 2} = CAI_generator(Sequence_ORF_whole, codon_tAI);
+%tai_ratio{1, 2} = tai_reshaped{1, 2}./tai_whole_reshaped{1, 2};
 
 Sequences_UTR5 = windows_reshaped{1,1};
-Sequence_UTR5_whole = whole_reshaped{1, 1};
+%Sequence_UTR5_whole = whole_reshaped{1, 1};
 tai_reshaped{1, 1} = CAI_generator(Sequences_UTR5,codon_tAI);
-tai_whole_reshaped{1, 1} = CAI_generator(Sequence_UTR5_whole, codon_tAI);
-tai_ratio{1, 1} = tai_reshaped{1, 1}./tai_whole_reshaped{1, 1};
+%tai_whole_reshaped{1, 1} = CAI_generator(Sequence_UTR5_whole, codon_tAI);
+%tai_ratio{1, 1} = tai_reshaped{1, 1}./tai_whole_reshaped{1, 1};
 
 Sequences_UTR3 = windows_reshaped{1,3};
-Sequence_UTR3_whole = whole_reshaped{1, 3};
+%Sequence_UTR3_whole = whole_reshaped{1, 3};
 tai_reshaped{1, 3} = CAI_generator(Sequences_UTR3,codon_tAI);
-tai_whole_reshaped{1, 3} = CAI_generator(Sequence_UTR3_whole, codon_tAI);
-tai_ratio{1, 3} = tai_reshaped{1, 3}./tai_whole_reshaped{1, 3};
+%tai_whole_reshaped{1, 3} = CAI_generator(Sequence_UTR3_whole, codon_tAI);
+%tai_ratio{1, 3} = tai_reshaped{1, 3}./tai_whole_reshaped{1, 3};
 
 
 titles = ["UTR5", "ORF", "UTR3"];
 
 fprintf("\nFeature: tAI Score of Binding Window \n")
 
-for i = 1:length(tai_reshaped)
+for i = 2:length(tai_reshaped)
     fprintf("\nCurrent Sequence Type: %s", titles(i))
     data_pipeline(tai_reshaped{1, i}, reshaped_repress{1, i});
 end
 
-fprintf("\nFeature: tAI Score of WHole Sequence \n")
-
-for i = 1:length(tai_whole_reshaped)
-    fprintf("\nCurrent Sequence Type: %s", titles(i))
-    data_pipeline(tai_whole_reshaped{1, i}, reshaped_repress{1, i});
-end
-
-fprintf("\nFeature: tAI Score Ratio \n")
-
-for i = 1:length(tai_ratio)
-    fprintf("\nCurrent Sequence Type: %s", titles(i))
-    data_pipeline(tai_ratio{1, i}, reshaped_repress{1, i});
-end
+% fprintf("\nFeature: tAI Score of WHole Sequence \n")
+% 
+% for i = 2:length(tai_whole_reshaped)
+%     fprintf("\nCurrent Sequence Type: %s", titles(i))
+%     data_pipeline(tai_whole_reshaped{1, i}, reshaped_repress{1, i});
+% end
+% 
+% fprintf("\nFeature: tAI Score Ratio \n")
+% 
+% for i = 2:length(tai_ratio)
+%     fprintf("\nCurrent Sequence Type: %s", titles(i))
+%     data_pipeline(tai_ratio{1, i}, reshaped_repress{1, i});
+% end
 
 
 
 clearvars ans tAI_ORF tAI_UTR3 tAI_UTR5 Sequences_ORF Sequences_UTR3 Sequences_UTR5 titles windows_reshaped i codon_tAI 
 save('data_sets/feature_data/tai_reshaped.mat', 'tai_reshaped')
-save('data_sets/feature_data/tai_whole_reshaped.mat', 'tai_whole_reshaped')
-save('data_sets/feature_data/tai_ratio.mat', 'tai_ratio')
+% save('data_sets/feature_data/tai_whole_reshaped.mat', 'tai_whole_reshaped')
+% save('data_sets/feature_data/tai_ratio.mat', 'tai_ratio')
 
 %% GC content (Michal)
 
@@ -462,21 +435,21 @@ titles = ["UTR5", "ORF", "UTR3"];
 
 fprintf("\nFeature: GC Score of Binding Window \n")
 
-for i = 1:length(gc_reshaped)
+for i = 2:length(gc_reshaped)
     fprintf("\nCurrent Sequence Type: %s", titles(i))
     data_pipeline(gc_reshaped{1, i}, reshaped_repress{1, i});
 end
 
 fprintf("\nFeature: GC Score of WHole Sequence \n")
 
-for i = 1:length(gc_whole_reshaped)
+for i = 2:length(gc_whole_reshaped)
     fprintf("\nCurrent Sequence Type: %s", titles(i))
     data_pipeline(gc_whole_reshaped{1, i}, reshaped_repress{1, i});
 end
 
 fprintf("\nFeature: GC Score Ratio \n")
 
-for i = 1:length(gc_ratio)
+for i = 2:length(gc_ratio)
     fprintf("\nCurrent Sequence Type: %s", titles(i))
     data_pipeline(gc_ratio{1, i}, reshaped_repress{1, i});
 end
@@ -530,20 +503,51 @@ load('data_sets/feature_data/whole_conservations.mat')%%
 
 %% ORF
 clc
+clearvars info B nonan Xnonan MPGnonan
 
 for i = 2
-   
-    y = reshaped_repress{i}';
-   
-     X = [cai_reshaped{i}', cai_whole_reshaped{i}', cai_ratio{i}',conservation{i}', ...
-         whole_conservations_reshaped{i}', conservation_ratios{i}', gc_reshaped{i}', ...
-         gc_whole_reshaped{i}', gc_ratio{i}', reshaped_indices{i}', ...
-         terminus_distance_one{i}', terminus_distance_two{i}',distance_ratio_one{i}', ...
-         distance_ratio_two{i}', distance_ratio_three{i}', folding_energies{i}', ...
-         tai_reshaped{i}', tai_whole_reshaped{i}', tai_ratio{i}'];
+  y = reshaped_repress{i}';
     
-    [B, info] = lasso(X,y);
+    X_standard = [cai_reshaped{i}', conservation{i}', ...
+         folding_energies{i}', gc_reshaped{i}', ...
+         terminus_distance_two{i}', terminus_distance_one{i}', ...
+         tai_reshaped{i}', reshaped_indices{i}'];
     
+    
+    X_whole = [cai_whole_reshaped{i}', ...
+         folding_energies{i}', ...
+         lengths_reshaped{i}', ...
+         gc_whole_reshaped{i}',...
+         tai_whole_reshaped{i}',...
+         whole_conservations_reshaped{i}'];
+    
+   
+    X_ratios = [cai_ratio{i}', conservation_ratios{i}', ...
+         gc_ratio{i}', ...
+         distance_ratio_two{i}', ...
+         folding_energies{i}', ...
+         tai_ratio{i}'];
+
+    X_all = [cai_reshaped{i}', cai_ratio{i}', cai_whole_reshaped{i}', conservation{i}', ...
+         folding_energies{i}', gc_reshaped{i}', conservation_ratios{i}', distance_ratio_one{i}', distance_ratio_two{i}', ...
+         terminus_distance_two{i}', terminus_distance_one{i}', distance_ratio_three{i}', ...
+         gc_ratio{i}', gc_whole_reshaped{i}', lengths_reshaped{i}',...
+         tai_reshaped{i}', reshaped_indices{i}', tai_ratio{i}', tai_whole_reshaped{i}', whole_conservations_reshaped{i}'];
+    
+     X = X_standard;
+     
+    [B, info] = lasso(X, y, 'CV', 5, 'Alpha', 0.5);
+    
+    nonan = ~any(isnan([X y]),2);
+    Xnonan = X(nonan,:);
+    MPGnonan = y(nonan,:);
+    corr(Xnonan)
+    
+    pnames = {'x1','x2','x3','x4', 'x5', 'x6', 'x7','x8','x9','x10', 'x11', 'x12', 'x13','x14','x15','x16', 'x17', 'x18', 'x19'};
+    lassoPlot(B, info,'PlotType','Lambda','XScale','log',...
+    'PredictorNames',pnames);
+    
+
     coef = B(:,1);
     coef0 = info.Intercept(1);
     orf_model = struct('coef', coef, 'coef0', coef0);
@@ -556,13 +560,13 @@ for i = 2
     correlation = corr(y, X_regularized, 'type', 'spearman') * 100;
     fprintf("\nSpearman Lasso Correlation: %.2f%%\n", correlation)
     
-    orf_model = stepwiselm(X, y, 'linear');
-    y_pred = predict(orf_model, X);
-    
-    correlation = corr(y_pred, y) * 100;
-    fprintf("\nPearson Step Wise Regression Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
-    fprintf("\nSpearman Step Wise Regression Correlation: %.2f%%\n", correlation)
+%     orf_model = stepwiselm(X, y, 'linear');
+%     y_pred = predict(orf_model, X);
+%     
+%     correlation = corr(y_pred, y) * 100;
+%     fprintf("\nPearson Step Wise Regression Correlation: %.2f%%\n", correlation)
+%     correlation = corr(y_pred, y, 'type', 'spearman') * 100;
+%     fprintf("\nSpearman Step Wise Regression Correlation: %.2f%%\n", correlation)
 
 end
 
@@ -576,15 +580,36 @@ lasso_model = cell(1);
 for i = 3
    
     y = reshaped_repress{i}';
-   
-     X =     [cai_reshaped{i}', cai_whole_reshaped{i}', cai_ratio{i}', ...
-    conservation{i}', whole_conservations_reshaped{i}', conservation_ratios{i}', ...
-    gc_reshaped{i}', gc_whole_reshaped{i}', gc_ratio{i}', ...
-    reshaped_indices{i}', terminus_distance_one{i}', terminus_distance_two{i}',...
-    distance_ratio_one{i}', distance_ratio_two{i}', distance_ratio_three{i}', ...
-    folding_energies{i}', tai_reshaped{i}', tai_whole_reshaped{i}', tai_ratio{i}'];
     
-    [B, info] = lasso(X,y);
+    X_standard = [cai_reshaped{i}', conservation{i}', ...
+         folding_energies{i}', gc_reshaped{i}', ...
+         terminus_distance_two{i}', terminus_distance_one{i}', ...
+         tai_reshaped{i}', reshaped_indices{i}'];
+    
+    
+    X_whole = [cai_whole_reshaped{i}', ...
+         folding_energies{i}', ...
+         lengths_reshaped{i}', ...
+         gc_whole_reshaped{i}',...
+         tai_whole_reshaped{i}',...
+         whole_conservations_reshaped{i}'];
+    
+   
+    X_ratios = [cai_ratio{i}', conservation_ratios{i}', ...
+         gc_ratio{i}', ...
+         distance_ratio_two{i}', ...
+         folding_energies{i}', ...
+         tai_ratio{i}'];
+
+    X_all = [cai_reshaped{i}', cai_ratio{i}', cai_whole_reshaped{i}', conservation{i}', ...
+         folding_energies{i}', gc_reshaped{i}', conservation_ratios{i}', distance_ratio_one{i}', distance_ratio_two{i}', ...
+         terminus_distance_two{i}', terminus_distance_one{i}', distance_ratio_three{i}', ...
+         gc_ratio{i}', gc_whole_reshaped{i}', lengths_reshaped{i}',...
+         tai_reshaped{i}', reshaped_indices{i}', tai_ratio{i}', tai_whole_reshaped{i}', whole_conservations_reshaped{i}'];
+    
+     X = X_standard;
+     
+    [B, info] = lasso(X,y, 'CV', 10, 'Alpha', 0.5);
     
     coef = B(:,1);
     coef0 = info.Intercept(1);
@@ -598,20 +623,20 @@ for i = 3
     correlation = corr(y_pred, y, 'type', 'spearman') * 100;
     fprintf("\nSpearman Lasso Correlation: %.2f%%\n", correlation)
     
-    utr3_model = stepwiselm(X, y, 'linear');
-    y_pred = predict(utr3_model, X);
-    
-    correlation = corr(y_pred, y) * 100;
-    fprintf("\nPearson Step Wise Regression Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
-    fprintf("\nSpearman Step Wise Regression Correlation: %.2f%%\n", correlation)
-
-    m = regress(y, X);
-    y_pred = X*m;
-    correlation = corr(y_pred, y) * 100;
-    fprintf("\nPearson Simple Regression Correlation: %.2f%%\n", correlation)
-    correlation = corr(y_pred, y, 'type', 'spearman') * 100;
-    fprintf("\nSpearman Simple Regression Correlation: %.2f%%\n", correlation)
+%     utr3_model = stepwiselm(X, y, 'linear');
+%     y_pred = predict(utr3_model, X);
+%     
+%     correlation = corr(y_pred, y) * 100;
+%     fprintf("\nPearson Step Wise Regression Correlation: %.2f%%\n", correlation)
+%     correlation = corr(y_pred, y, 'type', 'spearman') * 100;
+%     fprintf("\nSpearman Step Wise Regression Correlation: %.2f%%\n", correlation)
+% 
+%     m = regress(y, X);
+%     y_pred = X*m;
+%     correlation = corr(y_pred, y) * 100;
+%     fprintf("\nPearson Simple Regression Correlation: %.2f%%\n", correlation)
+%     correlation = corr(y_pred, y, 'type', 'spearman') * 100;
+%     fprintf("\nSpearman Simple Regression Correlation: %.2f%%\n", correlation)
 
 end
 

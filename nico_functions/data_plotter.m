@@ -20,13 +20,11 @@ function data_plotter(X, y_actual, y_predicted, m)
     unique_vals = unique(together(:, 1));
     
     if length(unique_vals) > 10
-        
         figure(1)
         plot(X, y_predicted, 'r')
         hold on
-        scatter(X(1:250), y_actual(1:250), 'b')
+        scatter(X(1:500), y_actual(1:500), 'b')
         hold off
-
     end
 
     if length(unique_vals) < 3
